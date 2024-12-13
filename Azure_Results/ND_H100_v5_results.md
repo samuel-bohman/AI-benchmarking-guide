@@ -135,8 +135,13 @@ Performance results for LLAMA 3.1 (70B) with FP8 quantization, 1000 requests.
 
 ### LLAMA 3 (405B) 
 
-Performance results for LLAMA 3 (405B) with world size 8, input length 128, output length 8.
+Performance results for LLAMA 3 (405B) with FP8 quantization, 1000 requests.
 
-|                   | ND H200 V5 | 
-| ----------------- | ---------- | 
-| Tokens per second | -       |
+| tp size | input len | output len | throughput(tokens/sec) |
+|---------|-----------|------------|------------------------|
+| 8       | 128       | 128        | 2515                   |
+| 8       | 128       | 1024       | 3417                   |
+| 8       | 128       | 2048       | 3434                   |
+| 8       | 500       | 2000       | 3143                   |
+| 8       | 1024      | 1024       | 2422                   |
+| 8       | 2048      | 2048       | 1973                   |
