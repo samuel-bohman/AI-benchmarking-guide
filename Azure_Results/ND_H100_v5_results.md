@@ -10,7 +10,7 @@
 | NVIDIA Driver | 560.35.03   |
 | VBIOS         | 96.00.9D.00.02 |
 | NCCL          |    2.18.5  |
-| PyTorch       |    2.4.0   |
+| PyTorch       |    2.5.1   |
 
 
 ## Microbenchmarks
