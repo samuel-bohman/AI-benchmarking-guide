@@ -82,7 +82,7 @@
     "LLMBenchmark": {
         "models": {
             "meta-llama/Llama-3.1-8B":{
-                "use_model": true,
+                "use_model": false,
                 "input_sizes": [128, 128, 500, 2048, 1024, 128],
                 "output_sizes": [128, 2048, 2000, 2048, 1024, 1024],
                 "tp_size": 1,
