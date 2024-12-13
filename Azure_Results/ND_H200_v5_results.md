@@ -107,36 +107,32 @@ The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth v
 
 ## End-to-End Inference Workloads 
 
-### Mistral (7B) 
 
-Performance results for Mistral (7B) ran with input length 128 and output Length 8.
 
-|                   | Batch Size | ND H200 V5 |  
-| ----------------- | ---------- | ---------- |  
-| Tokens per second | 64         | 2822.37    |  
+### LLAMA 3.1 (8B) 
 
-### LLAMA 3 (8B) 
+Performance results for LLAMA 3.1 (8B) with FP8 quantization, 1000 requests.
 
-Performance results for LLAMA 3 (8B) with input Length 128 and output length 8.
-
-|                   | Batch Size | ND H200 V5 |  
-| ----------------- | ---------- | ---------- |  
-| Tokens per second | 64         | 2757.54    |  
+| tp size | input len | output len | throughput(tokens/sec) |
+|---------|-----------|------------|------------------------|
+| 1       | 128       | 128        | 17853                  |
+| 1       | 128       | 1024       | 23880                  |
+| 1       | 128       | 2048       | 21255                  |
+| 1       | 500       | 2000       | 18357                  |
+| 1       | 1024      | 1024       | 15043                  |
+| 1       | 2048      | 2048       | 9736                   |
 
 ### LLAMA 3 (70B) 
 
-Performance results for LLAMA 3 (70B) with world size 8, input length 128, and output length 8.
-
-|                   | Batch Size | ND H200 V5 | 
-| ----------------- | ---------- | ---------- | 
-| Tokens per second | 16         | 647.78     |  
-| Tokens per second | 32         | 861.77     | 
-| Tokens per second | 64         | 1145.14    |   
+Performance results for LLAMA 3 (70B) with FP8 quantization, 1000 requests.
+   
 
 ### LLAMA 3 (405B) 
 
 Performance results for LLAMA 3 (405B) with world size 8, input length 128, output length 8.
 
-|                   | Batch Size | ND H200 V5 | 
-| ----------------- | ---------- | ---------- | 
-| Tokens per second | 96         | 333.47     |
+
+
+|                   | ND H200 V5 | 
+| ----------------- | ---------- | 
+| Tokens per second | 3500       |

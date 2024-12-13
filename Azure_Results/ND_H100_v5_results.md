@@ -107,36 +107,36 @@ The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth v
 
 ## End-to-End Inference Workloads 
 
-### Mistral (7B) 
+### LLAMA 3.1 (8B) 
 
-Performance results for Mistral (7B) ran with input length 128 and output Length 8.
+Performance results for LLAMA 3.1 (8B) with FP8 quantization, 1000 requests.
 
-|                   | Batch Size | ND H100 V5 |  
-| ----------------- | ---------- | ---------- |  
-| Tokens per second | 64         | 2696.04    |  
+| tp size | input len | output len | throughput(tokens/sec) |
+|---------|-----------|------------|------------------------|
+| 1       | 128       | 128        | 15163                  |
+| 1       | 128       | 1024       | 17075                  |
+| 1       | 128       | 2048       | 15014                  |
+| 1       | 500       | 2000       | 13047                  |
+| 1       | 1024      | 1024       | 11724                  |
+| 1       | 2048      | 2048       | 8026                   |
 
-### LLAMA 3 (8B) 
+### LLAMA 3.1 (70B) 
 
-Performance results for LLAMA 3 (8B) with input Length 128 and output length 8.
+Performance results for LLAMA 3.1 (70B) with FP8 quantization, 1000 requests.
 
-|                   | Batch Size | ND H100 V5 |  
-| ----------------- | ---------- | ---------- |  
-| Tokens per second | 64         | 2640.07    |  
-
-### LLAMA 3 (70B) 
-
-Performance results for LLAMA 3 (70B) with world size 8, input length 128, and output length 8.
-
-|                   | Batch Size | ND H100 V5 | 
-| ----------------- | ---------- | ---------- | 
-| Tokens per second | 16         | 624.57     |  
-| Tokens per second | 32         | 825.02     | 
-| Tokens per second | 64         | 1077.84    |   
+| tp size | input len | output len | throughput(tokens/sec) |
+|---------|-----------|------------|------------------------|
+| 8       | 128       | 128        | 10032                  |
+| 8       | 128       | 1024       | 13345                  |
+| 8       | 128       | 2048       | 12910                  |
+| 8       | 500       | 2000       | 11594                  |
+| 8       | 1024      | 1024       | 9125                   |
+| 8       | 2048      | 2048       | 7908                   |
 
 ### LLAMA 3 (405B) 
 
 Performance results for LLAMA 3 (405B) with world size 8, input length 128, output length 8.
 
-|                   | Batch Size | ND H100 V5 | 
-| ----------------- | ---------- | ---------- | 
-| Tokens per second | 32         | 251.5     |
+|                   | ND H200 V5 | 
+| ----------------- | ---------- | 
+| Tokens per second | -       |

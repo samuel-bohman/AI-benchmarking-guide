@@ -124,14 +124,24 @@ venv.bak/
 
 BabelStream/
 bin/
+nccl/
 flash-attention/
 nccl-tests/
 Outputs/
 __pycache__/
+nvbandwidth/
 superbenchmark/
+Transferbench/
+rccl/
+rccl-tests/
 models/
 engines/
 TensorRT-LLM/
+datasets/
+hub/
+model.cache
+stored_tokens
+token
 
 # mypy
 .mypy_cache/

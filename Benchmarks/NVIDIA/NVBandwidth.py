@@ -1,10 +1,6 @@
 import json
 import subprocess
 import os
-import torch
-import time
-import statistics
-import numpy as np
 
 class NVBandwidth:
     def __init__(self, path:str, machine: str):
@@ -54,21 +50,11 @@ class NVBandwidth:
  
         buffer=[]
             
-        results = subprocess.run('./nvbandwidth -t device_to_device_bidirectional_memcpy_read_sm | grep -A 11 "Running device_to_device_bidirectional_memcpy_read_sm."', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        results = subprocess.run('./nvbandwidth -t device_to_host_memcpy_ce host_to_device_memcpy_ce device_to_device_bidirectional_memcpy_read_ce', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         log = results.stdout.decode('utf-8')
         print(results.stderr.decode('utf-8')) 
         buffer.append(log)
         
-        results = subprocess.run('./nvbandwidth -t device_to_host_memcpy_sm | grep -A 4 "Running device_to_host_memcpy_sm."', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        log = results.stdout.decode('utf-8')
-        print(results.stderr.decode('utf-8')) 
-        buffer.append(log)
-       
-        results = subprocess.run('./nvbandwidth -t host_to_device_memcpy_sm | grep -A 4 "Running host_to_device_memcpy_sm."', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        log = results.stdout.decode('utf-8')
-        print(results.stderr.decode('utf-8')) 
-        buffer.append(log)
-      
         os.chdir(current)
     
         file = open("Outputs/NVBandwidth_" + self.machine_name + ".txt", "w")
@@ -76,6 +62,5 @@ class NVBandwidth:
             file.write(item)
             print(item)
      
-        
         self.buffer=buffer
         os.chdir(current)

@@ -5,8 +5,6 @@ import subprocess
 import time
 import csv
 from prettytable import PrettyTable
-import numpy as np
-import torch
 
 class HBMBandwidth:
     def __init__(self, path: str, machine: str):
@@ -80,19 +78,12 @@ class HBMBandwidth:
         current = os.getcwd()
         print("Running HBM Bandwidth...")
 
-        start = torch.cuda.Event(enable_timing=True)
-        end = torch.cuda.Event(enable_timing=True)
-
         runs_executed = 0
         buffer = []
         while runs_executed < self.num_runs:
-            start.record()
             results = subprocess.run(
                 ["./cuda-stream"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
-
-            end.record()
-            torch.cuda.synchronize()
             log = results.stdout.decode("utf-8").strip().split("\n")[14:19]
             for i in range(len(log)):
                 temp = log[i].split()
@@ -111,8 +102,7 @@ class HBMBandwidth:
         mean = statistics.mean(results)/1000000
         maximum = max(results)/1000000
         minimum = min(results)/1000000
-        stdev = statistics.stdev(results)/1000
-        return [minimum, maximum, mean, stdev]
+        return [round(minimum, 2), round(maximum, 2), round(mean, 2)]
     
 
     def save_results(self):
@@ -135,7 +125,7 @@ class HBMBandwidth:
         dot[1:] = self.process_stats(dot[1:])
         
         table1 = PrettyTable()
-        table1.field_names = ["Operation","Min (TB/s)", "Max (TB/s)", "Mean (TB/s)", "StDev (GB/s)"]
+        table1.field_names = ["Operation","Min (TB/s)", "Max (TB/s)", "Mean (TB/s)"]
         table1.add_row(copy)
         table1.add_row(mul)
         table1.add_row(add)
@@ -145,7 +135,7 @@ class HBMBandwidth:
 
         with open('../../Outputs/HBMBandwidth_Performance_results_' + self.machine_name +'.csv', 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(["Operation","Min (TB/s)", "Max (TB/s)", "Mean (TB/s)", "StDev (GB/s)"])
+            writer.writerow(["Operation","Min (TB/s)", "Max (TB/s)", "Mean (TB/s)"])
             writer.writerow(copy)
             writer.writerow(mul)
             writer.writerow(add)

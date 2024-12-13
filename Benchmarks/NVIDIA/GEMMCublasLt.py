@@ -6,9 +6,7 @@ import datetime
 import time
 import csv 
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import numpy as np
-import torch
 from matplotlib.ticker import FormatStrFormatter
 from Infra import tools
 from prettytable import PrettyTable
@@ -157,8 +155,7 @@ class GEMMCublastLt:
         with open('../Outputs/GEMMCublasLt_Shmoo_'+ self.machine_name +'_' +self.datatype+'.csv', 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(["M", "N", "K", "Batch", "Time(us)", "TFLOPS"])
-            start = torch.cuda.Event(enable_timing=True)
-            end = torch.cuda.Event(enable_timing=True)
+
             for i in range(len(self.m)):
                 for j in range(len(self.n)):
                     for t in range(len(self.k)):
@@ -167,7 +164,6 @@ class GEMMCublastLt:
                         c = str(self.k[t]) == end_interval
 
                         if (a and b) or (b and c) or (a and c):
-                            start.record()
                             results = subprocess.run(
                                 [
                                     "./cublaslt_gemm",
@@ -196,8 +192,6 @@ class GEMMCublastLt:
                                 stderr=subprocess.PIPE,
                             )
 
-                            end.record()
-                            torch.cuda.synchronize()
                             log = results.stdout.decode("utf-8")
                             # print("m: ", self.m[i] ," n: ", self.n[j], " k: ", self.k[t])
                             # handle errors and failed cases

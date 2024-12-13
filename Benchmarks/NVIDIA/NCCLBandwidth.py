@@ -2,14 +2,9 @@ import json
 import os
 import csv 
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-import numpy as np
-from matplotlib.ticker import FormatStrFormatter
 import subprocess
-import time
 import csv
 import numpy as np
-import torch
 from prettytable import PrettyTable
 
 
@@ -40,6 +35,20 @@ class NCCLBandwidth:
         
     def build(self):
         current = os.getcwd()
+
+        path ='nccl'
+        isdir = os.path.isdir(path)
+        if not isdir:
+            results = subprocess.run(['git', 'clone', 'https://github.com/NVIDIA/nccl.git', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            build_path = os.path.join(current, 'nccl')
+            os.chdir(build_path)
+            results = subprocess.run('make -j src.build', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            print(results.stderr.decode('utf-8')) 
+            os.chdir(current)
+      
+
+        results = subprocess.run('export NCCL_HOME=' + current + '/nccl/build', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        results = subprocess.run('export LD_LIBRARY_PATH=' + current + '/nccl/build/lib:$LD_LIBRARY_PATH', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         path ='nccl-tests'
         isdir = os.path.isdir(path)
@@ -57,19 +66,15 @@ class NCCLBandwidth:
 
     def run(self): 
         current = os.getcwd()
-        start = torch.cuda.Event(enable_timing=True)
-        end = torch.cuda.Event(enable_timing=True)
         
         buffer=[["8 ","16 ","32 ","64 ","128 ","256 ","512 ","1K","2K","4K","8K","16K","32K","65K","132K","256K", "524K","1M","2M","4M","8M","16M","33M","67M","134M","268M","536M","1G","2G","4G","8G"]]
         runs = ["Tree", "Ring", "NVLS", "NVLSTree"]
 
         print("Running NCCL AllReduce...")
         for run in runs:
-            start.record()
             results = subprocess.run('NCCL_ALGO='+ run +' ./build/all_reduce_perf -b 8 -e 8G -f 2 -g 8 -n 40 | grep float', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(results.stderr.decode('utf-8'))
-            end.record()
-            torch.cuda.synchronize()
+
             res = results.stdout.decode('utf-8').split('\n')
             log = []
             for line in res:
@@ -112,6 +117,7 @@ class NCCLBandwidth:
     def save(self):
         with open('../Outputs/NCCLBandwidth_' + self.machine_name + '.csv', 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(["Message Size", "Tree", "Ring", "NVLS", "NVLSTree"])
             
             for i in range(len(self.buffer[0])):
                 row = [self.buffer[0][i], self.buffer[1][i], self.buffer[2][i], self.buffer[3][i], self.buffer[4][i]]  
