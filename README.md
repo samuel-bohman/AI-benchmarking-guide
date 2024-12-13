@@ -63,7 +63,7 @@ To assess how different system components (as tested by the microbenchmarks) aff
 ### 7. Memory Latency Checker
 The Memory Latency Checker (MLC) measures the bandwidth and latencies between the CPU sockets and main memory DIMMs (Dual In-Line Memory Module) for both read and write in the NUMA domains. Although this has a smaller effect on end-to-end performance, it does affect subservient IO and network operations. To run it: `wget https://downloadmirror.intel.com/834254/mlc_v3.11b.tgz && tar -zxvf mlc_v3.11b.tgz && ./Linux/mlc`
 
-# HOW TO UN THE BENCHMARKS
+# HOW TO RUN THE BENCHMARKS
 
 All the requirements for the benchmarks can be installed with a simple command: `pip3 install -r requirements.txt`.
 
