@@ -98,3 +98,44 @@ The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth v
 | 2G                   | 315.06            |  
 | 4G                   | 314.85            |  
 | 8G                   | 316.82            |  
+
+## End-to-End Inference Workloads 
+
+### LLAMA 3.1 (8B) 
+
+Performance results for LLAMA 3.1 (8B) with FP8 quantization, 1000 requests.
+
+| tp size | input len | output len | throughput(tokens/sec) |
+|---------|-----------|------------|------------------------|
+| 1       | 128       | 128        |                   |
+| 1       | 128       | 1024       |                   |
+| 1       | 128       | 2048       |                  |
+| 1       | 500       | 2000       |                  |
+| 1       | 1024      | 1024       |                   |
+| 1       | 2048      | 2048       |                    |
+
+### LLAMA 3.1 (70B) 
+
+Performance results for LLAMA 3.1 (70B) with FP8 quantization, 1000 requests.
+
+| tp size | input len | output len | throughput(tokens/sec) |
+|---------|-----------|------------|------------------------|
+| 8       | 128       | 128        | 9026                  |
+| 8       | 128       | 1024       | 12461                  |
+| 8       | 128       | 2048       | 12204                  |
+| 8       | 500       | 2000       |                   |
+| 8       | 1024      | 1024       | 8256                   |
+| 8       | 2048      | 2048       |                    |
+
+### LLAMA 3 (405B) 
+
+Performance results for LLAMA 3 (405B) with FP8 quantization, 1000 requests.
+
+| tp size | input len | output len | throughput(tokens/sec) |
+|---------|-----------|------------|------------------------|
+| 8       | 128       | 128        | 2484                   |
+| 8       | 128       | 1024       | 3846                   |
+| 8       | 128       | 2048       | 3902                   |
+| 8       | 500       | 2000       |                   |
+| 8       | 1024      | 1024       | 2363                   |
+| 8       | 2048      | 2048       |                   |
