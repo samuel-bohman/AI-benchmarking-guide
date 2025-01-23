@@ -50,8 +50,8 @@ The performance (in TFLOPS), in table below, represents the performance for a he
 
 |                       | AMD MI300X (GB/s) |  
 | --------------------- | ----------------- |  
-| Host to Device        | 29                |  
-| Device to Host        | 55                |  
+| Host to Device        | 55                |  
+| Device to Host        | 56                |  
 
 
 ### FIO Tests
@@ -108,11 +108,11 @@ Performance results for LLAMA 3.1 (8B) with FP8 quantization, 1000 requests.
 | tp size | input len | output len | throughput(tokens/sec) |
 |---------|-----------|------------|------------------------|
 | 1       | 128       | 128        |                   |
-| 1       | 128       | 1024       |                   |
-| 1       | 128       | 2048       |                  |
+| 1       | 128       | 1024       |                 |
+| 1       | 128       | 2048       |                 |
 | 1       | 500       | 2000       |                  |
-| 1       | 1024      | 1024       |                   |
-| 1       | 2048      | 2048       |                    |
+| 1       | 1024      | 1024       |                  |
+| 1       | 2048      | 2048       |                   |
 
 ### LLAMA 3.1 (70B) 
 
@@ -123,9 +123,9 @@ Performance results for LLAMA 3.1 (70B) with FP8 quantization, 1000 requests.
 | 8       | 128       | 128        | 9026                  |
 | 8       | 128       | 1024       | 12461                  |
 | 8       | 128       | 2048       | 12204                  |
-| 8       | 500       | 2000       |                   |
+| 8       | 500       | 2000       | 10877                  |
 | 8       | 1024      | 1024       | 8256                   |
-| 8       | 2048      | 2048       |                    |
+| 8       | 2048      | 2048       | 7421                   |
 
 ### LLAMA 3 (405B) 
 
@@ -136,6 +136,6 @@ Performance results for LLAMA 3 (405B) with FP8 quantization, 1000 requests.
 | 8       | 128       | 128        | 2484                   |
 | 8       | 128       | 1024       | 3846                   |
 | 8       | 128       | 2048       | 3902                   |
-| 8       | 500       | 2000       |                   |
+| 8       | 500       | 2000       | 3407                  |
 | 8       | 1024      | 1024       | 2363                   |
 | 8       | 2048      | 2048       |                   |
