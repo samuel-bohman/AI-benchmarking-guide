@@ -83,6 +83,7 @@
         "models": {
             "meta-llama/Llama-3.1-8B":{
                 "use_model": true,
+                "type": "nvidia",
                 "input_sizes": [128, 128, 500, 2048, 1024, 128],
                 "output_sizes": [128, 2048, 2000, 2048, 1024, 1024],
                 "tp_size": 1,
@@ -92,6 +93,7 @@
 
             "meta-llama/Llama-3.1-70B":{
                 "use_model": false,
+                "type": "nvidia",
                 "input_sizes": [128, 128, 500, 2048, 1024, 128],
                 "output_sizes": [128, 2048, 2000, 2048, 1024, 1024],
                 "tp_size": 8,
@@ -101,6 +103,7 @@
 
             "meta-llama/Llama-3.1-405B":{
                 "use_model": false,
+                "type": "nvidia",
                 "input_sizes": [128, 128, 500, 2048, 1024, 128],
                 "output_sizes": [128, 2048, 2000, 2048, 1024, 1024],
                 "tp_size": 8,
