@@ -10,7 +10,7 @@ class LLMBenchmark:
         self.name = "LLMBenchmark"
         self.config = self.get_config(config_path)
         self.dir_path = dir_path
-        self.precision = "float16"
+        self.precision = "half"
         self.container = None
         self.machine = machine
 
@@ -38,72 +38,66 @@ class LLMBenchmark:
             'cap_add': ['CAP_SYS_ADMIN', 'SYS_PTRACE'],
             'devices': ['/dev/kfd', '/dev/dri', '/dev/mem'],
             'volumes': {str(self.dir_path): {'bind': str(self.dir_path), 'mode': 'rw'}},
-            'environment': {'HF_HOME': str(self.dir_path)}, 
+            'environment': {'HF_HOME': str(self.dir_path)},
             'tty': True,
             'detach': True
         }
 
 
         # Creates new Docker container
-        self.container = client.containers.run('powderluv/vllm_dev_channel:20240927', **docker_run_options)
+        self.container = client.containers.run('rocm/vllm-dev:20241121-tuned', **docker_run_options)
 
         print(f"Docker Container ID: {self.container.id}")
 
 
     def run_benchmark(self):
         for model_name in self.config['models']:
-            if self.config['models'][model_name]['use_model']:
+            if self.config['models'][model_name]['use_model'] and self.config['models'][model_name]['type'] == "amd":
                 for tp_size in self.config['models'][model_name]['tp_sizes']:
-                    for batch_size in self.config['models'][model_name]['batch_sizes']:
-                        for input_size in  self.config['models'][model_name]['input_length']:
+                    for max_num_seq in self.config['models'][model_name]['max_num_seqs']:
+                        for input_size in self.config['models'][model_name]['input_length']:
                             for output_size in self.config['models'][model_name]['output_length']:
-                                warmup = self.config['models'][model_name]['warmup']
-                                number_of_runs = self.config['models'][model_name]['number_of_runs']
-                                print(f"Benchmarking {model_name} | TP Size: {tp_size} | Batch Size: {batch_size} | Input Size: {input_size} | Output Size: {output_size}")
+                                for request in self.config['models'][model_name]['num_requests']:
+                                    print(f"Benchmarking {model_name} | TP Size: {tp_size} | Input Size: {input_size} | Output Size: {output_size}")
+                                    run_benchmark_command = f'''
+                                        /bin/bash -c \
+                                        "python /app/vllm/benchmarks/benchmark_throughput.py \
+                                            --model amd/{model_name} \
+                                            --quantization fp8 \
+                                            --kv-cache-dtype fp8 \
+                                            --dtype half \
+                                            --gpu-memory-utilization 0.90 \
+                                            --distributed-executor-backend mp \
+                                            --num-scheduler-steps 10 \
+                                            --tensor-parallel-size {tp_size} \
+                                            --enable-chunked-prefill false \
+                                            --max-seq-len-to-capture 131072 \
+                                            --max-num-batched-tokens 131072 \
+                                            --max-model-len 8192 \
+                                            --max-num-seqs {max_num_seq} \
+                                            --num-prompts {request} \
+                                            --input-len {input_size} \
+                                            --output-len {output_size}"
+                                        '''
 
+                                    rb1 = self.container.exec_run(run_benchmark_command)
+                                    if rb1.exit_code != 0:
+                                        print(rb1.output.decode('utf-8'))
+                                        self.container.kill()
+                                        return
 
+                                    temp = rb1.output.decode('utf-8').split('\n')
+                                    for line in temp:
+                                        if "Throughput: " in line:
+                                            result = line.split(' ')[6]
+                                            table1 = PrettyTable()
+                                            table1.add_row(['Model Name', model_name])
+                                            table1.add_row(['Input/Output lengths', str(input_size) + "/" + str(output_size)])
+                                            table1.add_row(['World Size (TP size)', str(tp_size)])
+                                            table1.add_row(['Throughput (tokens/sec)', str(result)])
 
-                                print(model_name, tp_size, batch_size, input_size, output_size)
-                                run_benchmark_command = f'''
-                                    /bin/bash -c \
-                                    "python /app/vllm/benchmarks/benchmark_latency.py \
-                                        --model amd/{model_name} \
-                                        --dtype {self.precision} \
-                                        --kv-cache-dtype fp8 \
-                                        --gpu-memory-utilization 0.99 \
-                                        --quantization fp8 \
-                                        --distributed-executor-backend mp \
-                                        --max-model-len 8192 \
-                                        --tensor-parallel-size {tp_size} \
-                                        --num-iters {number_of_runs} \
-                                        --num-iters-warmup {warmup} \
-                                        --num-scheduler-steps 10 \
-                                        --input-len {input_size} \
-                                        --output-len {output_size} \
-                                        --batch-size {batch_size}"
-                                    '''
-
-                                rb1 = self.container.exec_run(run_benchmark_command)
-                                if rb1.exit_code != 0:
-                                    print(rb1.output.decode('utf-8'))
-                                    self.container.kill()
-                                    return
-
-                                temp = rb1.output.decode('utf-8').split('\n')
-                                for line in temp:
-                                    if "Avg latency" in line:
-                                        res = float(line.split(' ')[2])
-                                        result = round(int(batch_size) * int(output_size) / res, 2)
-                                        table1 = PrettyTable()
-                                        table1.add_row(['Model Name', model_name])
-                                        table1.add_row(['Input/Output lengths', str(input_size) + "/" + str(output_size)])
-                                        table1.add_row(['World Size (TP size)', str(tp_size)])
-                                        table1.add_row(['Batch Size', str(batch_size)])
-                                        table1.add_row(['Throughput (tokens/sec)', str(result)])
-                                        table1.add_row(['Latency (ms)', str(round(res * 1000, 2))])
-
-                                        print(table1.get_string(header=False))
-                                        self.save_data([model_name, str(input_size), str(output_size), str(tp_size), str(batch_size), str(result), str(res * 1000)], 'Outputs/LLMBenchmark_' + self.machine + '.csv')
+                                            print(table1.get_string(header=False))
+                                            self.save_data([model_name, str(input_size), str(output_size), str(tp_size), str(result)], 'Outputs/LLMBenchmark_' + self.machine + '.csv')
 
         self.container.kill()
 
@@ -112,10 +106,10 @@ class LLMBenchmark:
 
         # Check if the file exists
         file_exists = os.path.exists(file_path)
-        
+
         # Open the file in append mode if it exists, otherwise create it
         with open(file_path, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             if not file_exists:
-                writer.writerow(["Model_name", "Input_length", "Output_length", "TP_size", "Batch_size", "Tokens per sec", "Latency(ms)"])
+                writer.writerow(["Model_name", "Input_length", "Output_length", "TP_size", "Tokens per sec"])
             writer.writerow(data)
