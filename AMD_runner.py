@@ -5,7 +5,7 @@ from Benchmarks.AMD import RCCLBandwidth as RCCL
 from Benchmarks.AMD import FlashAttention as FA
 from Benchmarks.AMD import HBMBandwidth as HBM
 from Benchmarks.AMD import TransferBench as TB
-from Benchmarks.AMD import GEMMRocBLAS as GEMM
+from Benchmarks.AMD import GEMMHipblasLt as GEMM
 from Benchmarks.AMD import FIO
 from Infra import tools
 from Benchmarks.AMD import LLMBenchmark as llmb
@@ -53,10 +53,11 @@ def run_TransferBench():
     test.build()
     test.run()
 
-def run_GEMMRocBLAS():
-    test = GEMM.GEMMRocBLAS("config.json", current, machine_name)
+def run_GEMMHipBLAS():
+    test = GEMM.GEMMHipBLAS("config.json", current, machine_name)
     test.create_container()
     test.build()
+    print("built")
     test.run_model_sizes()
 
 def run_RCCLBandwidth():
@@ -96,7 +97,7 @@ for arg in sys.argv:
 
 if ("gemm" in arguments):
     match = True
-    run_GEMMRocBLAS()
+    run_GEMMHipBLAS()
 
 if ("rccl" in arguments):
     match = True
@@ -105,7 +106,7 @@ if ("rccl" in arguments):
 if ("hbm" in arguments):
     match = True
     run_HBMBandwidth()
- 
+
 if ("transfer" in arguments):
     match = True
     run_TransferBench()
@@ -124,13 +125,12 @@ if ("llm" in arguments):
 
 if ("all" in arguments):
     match = True
-    run_GEMMRocBLAS()
+    run_GEMMHipBLAS()
     run_RCCLBandwidth()
     run_HBMBandwidth()
     run_TransferBench()
     run_FlashAttention()
     run_FIO()
     run_LLMBenchmark()
-if not match: 
+if not match:
     print("Usage: python3 AMD_runner.py [arg]\n   or: python3 AMD_runner.py [arg1] [arg2] ... to run more than one test e.g python3 AMD_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nROCBLAS GEMM:  gemm\nRCCL Bandwidth: rccl\nHBMBandwidth:   hbm\nTransferbench:   transfer\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm")
-
