@@ -39,8 +39,8 @@ The Memory Latency Checker (MLC) measures the bandwidth and latencies between th
 
 ## Tests Included - AMD
 
-### 1. Microbenchmark - rocBLAS GEMM
-The [rocBLASLt General Matrix-to-matrix Multiply](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/AMD/GEMMRocBLAS.py) (GEMM) is a performance evaluation test for the ROCm Basic Linear Algebra Subroutines (rocBLAS) library for matrix and vector operations that leverages the parallel processing capabilities of GPUs. The benchmark is designed to assess the speed of matrix-to-matrix multiplication, which is the fundamental operation in AI applications, by measuring for varying matrix sizes (m, n, and k). The results shown below are with random initialization (best representation of real-life workloads) and datatype FP16.
+### 1. Microbenchmark - hipBLAS GEMM
+The [hipBLASLt General Matrix-to-matrix Multiply](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/AMD/GEMMHipblasLt.py) (GEMM) is a performance evaluation test for the hip Basic Linear Algebra Subroutines (hipBLAS) library for matrix and vector operations that leverages the parallel processing capabilities of GPUs. The benchmark is designed to assess the speed of matrix-to-matrix multiplication, which is the fundamental operation in AI applications, by measuring for varying matrix sizes (m, n, and k). The results shown below are with random initialization (best representation of real-life workloads) and datatype FP16.
 
 
 ### 2. Microbenchmark - RCCL Bandwidth
@@ -86,7 +86,7 @@ Usage: `python3 AMD_runner.py [arg]`\
    or: `python3 AMD_runner.py [arg1] [arg2]` ... to run more than one test e.g `python3 AMD_runner.py hbm nccl`\
 Arguments are as follows, and are case insensitive:\
 All tests:  `all`\
-ROCBLAS GEMM:  `gemm`\
+HipBLAS GEMM:  `gemm`\
 RCCL Bandwidth: `nccl`\
 HBMBandwidth:   `hbm`\
 TransferBench:   `transfer`\
