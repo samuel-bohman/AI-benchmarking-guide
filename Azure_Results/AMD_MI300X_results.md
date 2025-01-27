@@ -7,6 +7,8 @@
 |---------------|-------------------|
 | CPU           | Intel(R) Xeon(R) Platinum 8480C |
 | Ubuntu        |   22.04  |
+| ROCm        |   6.8.1  |
+| VBIOS  | 113-MI3SRIOV-001 |
 
 
 ## Microbenchmarks
@@ -16,15 +18,15 @@ The results shown below are with random initialization (best representation of r
 
 | m           | n         | k        | AMD MI300X (TFLOPS)    | 
 | ----------- | --------- | -------- | ---------------------- |  
-| 1024        | 1024      | 1024     |                    |  
-| 2048        | 2048      | 2048     |             |  
-| 4096        | 4096      | 4096     |                  |  
-| 8192        | 8192      | 8192     |                 |  
-| 16384       | 16384     | 16384    |                 |  
+| 1024        | 1024      | 1024     | 53.13                   |  
+| 2048        | 2048      | 2048     |  427.74           |  
+| 4096        | 4096      | 4096     |  955.17                |  
+| 8192        | 8192      | 8192     |  1159.23               |  
+| 16384       | 16384     | 16384    |  1015.1               |  
 | \---------- | \-------- | \------- | \--------------------- |  
-| 1024        | 2145      | 1024     |                    |  
-| 6144        | 12288     | 12288    |                |  
-| 802816      | 192       | 768      |                   |  
+| 1024        | 2145      | 1024     |   110.96                 |  
+| 6144        | 12288     | 12288    |   1159.54             |  
+| 802816      | 192       | 768      |    605.34               |  
 
 ### HBM Bandwidth
 
@@ -99,7 +101,7 @@ The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth v
 | 4G                   | 314.85            |  
 | 8G                   | 316.82            |  
 
-## End-to-End Inference Workloads 
+## End-to-End Inference Workloads - VLLM
 
 ### LLAMA 3.1 (8B) 
 
