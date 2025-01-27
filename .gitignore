@@ -138,6 +138,7 @@ models/
 engines/
 TensorRT-LLM/
 datasets/
+hipBLASLt/
 hub/
 model.cache
 stored_tokens
