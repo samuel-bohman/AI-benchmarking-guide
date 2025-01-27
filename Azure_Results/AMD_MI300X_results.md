@@ -101,7 +101,7 @@ The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth v
 | 4G                   | 314.85            |  
 | 8G                   | 316.82            |  
 
-## End-to-End Inference Workloads - VLLM
+## End-to-End Inference Workloads - vLLM
 
 ### LLAMA 3.1 (8B) 
 
