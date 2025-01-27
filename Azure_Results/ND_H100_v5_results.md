@@ -105,7 +105,7 @@ The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth v
 | 4G                   | 475.54            |  
 | 8G                   | 478.87            |  
 
-## End-to-End Inference Workloads 
+## End-to-End Inference Workloads - TensorRT-LLM
 
 ### LLAMA 3.1 (8B) 
 
