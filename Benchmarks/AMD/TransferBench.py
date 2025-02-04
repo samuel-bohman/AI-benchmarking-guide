@@ -28,11 +28,8 @@ class TransferBench:
     def config_conversion(self, config) -> tuple[list, list, list]:
         return self.parse_json(config)
 
-
     def create_container(self):
         client = docker.from_env()
-
-
         # Define the Docker run options
         docker_run_options = {
             'ipc_mode':'host',
@@ -48,15 +45,11 @@ class TransferBench:
             'detach': True
         }
 
-
         # Creates new Docker container from https://hub.docker.com/r/rocm/pytorch/tags
         self.container = client.containers.run('rocm/pytorch:rocm6.2.3_ubuntu22.04_py3.10_pytorch_release_2.3.0_triton_llvm_reg_issue', **docker_run_options)
-
         print(f"Docker Container ID: {self.container.id}")
 
-
     def build(self):
-
         path = "TransferBench"
         isdir = os.path.isdir(path)
         if not isdir:
@@ -78,12 +71,8 @@ class TransferBench:
             else:
                 print("Successfully built target TransferBench")
 
-
     def run(self):
-
         print("Running TransferBench...")
-
-
         runs_executed = 0
         while runs_executed < self.num_runs:
             run_cmd = self.dir_path + "/TransferBench/build/TransferBench " + self.dir_path + "/Benchmarks/AMD/transferbench.cfg"
@@ -95,14 +84,10 @@ class TransferBench:
             log = results.output.decode("utf-8")
             print(log)
             self.save(log, 'Outputs/TransferBench_' + self.machine_name + '.txt')
-
             runs_executed += 1
             time.sleep(int(self.interval))
 
-
-
         self.container.kill()
-
 
     def save(self, data, filename):
         with open(filename, mode='w', encoding='utf-8') as file:
