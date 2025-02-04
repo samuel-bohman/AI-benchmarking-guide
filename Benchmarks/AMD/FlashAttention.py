@@ -4,14 +4,11 @@ import docker
 
 class FlashAttention:
     def __init__(self, path:str, machine: str):
-        
         self.name='FlashAttention'
         self.machine_name = machine
         self.dir_path = path
         self.container = None
-
-        self.buffer = []
-    
+   
     def create_container(self):
         client = docker.from_env()
         print("creating")
@@ -29,18 +26,12 @@ class FlashAttention:
             'detach': True
         }
 
-        #if existing container exists
-        # self.container = client.containers.get('c34fc0616f7a')
-
         # Creates new Docker container
         self.container = client.containers.run('powderluv/vllm_dev_channel:20240927', **docker_run_options)
-
         print(f"Docker Container ID: {self.container.id}")
-
-        
+    
     def run(self):
         current = os.getcwd()
-        
         path ='flash-attention'
         isdir = os.path.isdir(path)
         if not isdir:
@@ -54,17 +45,11 @@ class FlashAttention:
 
         self.create_container()
 
-        
-
         print("Running Flash Attention...")
-        #res = self.container.exec_run(f'/bin/sh -c cd {self.dir_path}/flash-attention')
         res = self.container.exec_run(f'python3 {self.dir_path}/flash-attention/benchmarks/benchmark_flash_attention.py | grep -A 2 "batch_size=2, seqlen=8192 ###"')
-        
         print(res.output.decode('utf-8'))
 
         self.container.kill()
 
-        
         file = open(self.dir_path + "/Outputs/FlashAttention_" + self.machine_name + ".txt", "w")
         file.write(res.output.decode('utf-8'))
-
