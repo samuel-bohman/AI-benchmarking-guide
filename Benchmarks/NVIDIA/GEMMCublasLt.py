@@ -11,7 +11,6 @@ from matplotlib.ticker import FormatStrFormatter
 from Infra import tools
 from prettytable import PrettyTable
 
-
 class GEMMCublastLt:
     def __init__(self, path: str, machine: str, b: int = 1, i: int = 1000, w: int = 10000):
         self.name = "GEMMCublasLt"
@@ -56,13 +55,11 @@ class GEMMCublastLt:
         k = self.parse_json(config, "k")
         duration = self.parse_json(config, "duration")
         datatype = self.parse_json(config, "datatype")
-
         return m, n, k, duration, datatype
 
     def build(self):
         bindir = tools.create_dir("bin")
         self.bindir = bindir
-
         path = "superbenchmark"
         isdir = os.path.isdir(path)
         if not isdir:
@@ -77,9 +74,7 @@ class GEMMCublastLt:
                 stderr=subprocess.PIPE,
             )
             print(results.stderr.decode('utf-8'))
-
         current = os.getcwd()
-
         build_path = os.path.join(
             current,
             "superbenchmark/superbench/benchmarks/micro_benchmarks/cublaslt_gemm",
@@ -107,12 +102,10 @@ class GEMMCublastLt:
             self.buffer = self.parse_csv('Outputs/GEMMCublasLt_Shmoo_'+ self.machine_name +'_' +self.datatype+'.csv')
         else:
             self.buffer = self.run() 
-
         self.plot_shmoo()   
 
     def run_nvml(self):
         # run nvidia-smi -q -d SUPPORTED_CLOCKS to establish the clock frequency to use
-
         # res = subprocess.run(["sudo", "nvidia-smi", "-ac", "3201,1980"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         # print(res.stdout.decode('utf-8'))
         cmd = (
@@ -121,9 +114,7 @@ class GEMMCublastLt:
             + f"clocks.current.memory,temperature.gpu --format=csv --id=0 -lms 100 -f Outputs/{self.name}_power.csv"
         )
 
-
         cmd = shlex.split(cmd)
-    
         power_results = subprocess.Popen(
             cmd,
             stdout=subprocess.DEVNULL,
@@ -132,14 +123,11 @@ class GEMMCublastLt:
         )
 
         gemm_data = self.run_gemm()
-
         cmd = "pkill -9 nvidia-smi"
         cmd = shlex.split(cmd)
         subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         power_results.communicate()
-
         self.plot_power_data(gemm_data, self.parse_power_data("GEMMCublasLt_power.csv"))
-
 
     # run GEMM Sweep, start and end dims can be altered in config.json
     # results saved in Outputs folder
@@ -147,9 +135,7 @@ class GEMMCublastLt:
         print("Running GEMM Sweep...")
         current = os.getcwd()
         os.chdir(self.bindir)
-
         end_interval = str(self.m[-1])
-
         tot_time = 0
         buffer = []
         with open('../Outputs/GEMMCublasLt_Shmoo_'+ self.machine_name +'_' +self.datatype+'.csv', 'w') as csvFile:
@@ -203,7 +189,6 @@ class GEMMCublastLt:
         os.chdir(current)
         return buffer
     
-
     def run_gemm(self):
             current = os.getcwd()
             os.chdir(self.bindir)
@@ -239,7 +224,6 @@ class GEMMCublastLt:
             os.chdir(current)
             return buffer
     
-
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run_model_sizes(self):
         print("Running CublasLt...")
@@ -252,10 +236,8 @@ class GEMMCublastLt:
             m_dims = [1024, 2048, 4096, 8192, 16384, 1024, 6144, 802816, 802816] 
             n_dims = [1024, 2048, 4096, 8192, 16384, 2145, 12288, 192, 192]
             k_dims = [1024, 2048, 4096, 8192, 16384, 1024, 12288, 192, 768]  
-
         os.chdir(self.bindir)
         buffer = []
-          
         for i in range(len(m_dims)):
             results = subprocess.run(
                 [
@@ -280,7 +262,6 @@ class GEMMCublastLt:
             )
             log = results.stdout.decode('utf-8').split()
             buffer.append(log)
-
         table1 = PrettyTable()  
 
         with open('../Outputs/GEMMCublasLt_Performance_' + self.machine_name + '_' + self.datatype+'.csv', 'w') as csvFile:
@@ -290,10 +271,8 @@ class GEMMCublastLt:
             for item in buffer:
                 writer.writerow(item)
                 table1.add_row(item)
-
         print(table1)
         os.chdir(current)
-
 
     def parse_power_data(self, filename):
         power_data  = []
@@ -321,7 +300,6 @@ class GEMMCublastLt:
         os.chdir(current)
         return power_data
 
-
     def parse_timestamp(self, timestamp):
         times = timestamp.split(":")
         total_time = 0
@@ -332,7 +310,6 @@ class GEMMCublastLt:
 
     def plot_power_data(self, gemm_data, power_data):
         power_limit = power_data[0][3]
-
         baseline = float(power_data[0][0])
         t1 = np.array(power_data)[:, 0].astype(float)
         p = np.array(power_data)[:, 1].astype(float)
@@ -345,7 +322,6 @@ class GEMMCublastLt:
 
         fig, (ax, ax2, ax3, ax4)= plt.subplots(4, figsize=(18,18))
      
-
         ax.plot(t1, p, c="red")
         ax.grid(True)
         ax.set_ylim([50, power_limit + 100])
@@ -374,9 +350,7 @@ class GEMMCublastLt:
         plt.savefig("Outputs/GEMMCublasLt_Power_"+self.machine_name + "_" +self.datatype+".png", format="png", bbox_inches="tight")
         plt.close()
 
- 
     # // m n k batch time_us tflops
-
     def parse_csv(self, filename):
         buffer = []
         with open(filename, mode="r") as csvFile:
@@ -387,17 +361,13 @@ class GEMMCublastLt:
                 line_num += 1
         return buffer
                 
-
     def plot_shmoo(self):
         arr = np.array(self.buffer)
-
-
         # splitting up the data into m, n, k sweeps
         m_arr = []
         n_arr = []
         k_arr = []
 
-        
         # size of the other 2 dims that are constant
         dim_size = '4096'
         for i in range(len(arr)):
@@ -408,7 +378,6 @@ class GEMMCublastLt:
             if arr[i][0] == dim_size and arr[i][1] == dim_size:
                 k_arr.append(arr[i])
 
-        
         m_arr = np.array(m_arr)
         n_arr = np.array(n_arr)
         k_arr = np.array(k_arr)
@@ -417,7 +386,6 @@ class GEMMCublastLt:
         x = m_arr[:, 0].astype(int)
         y = m_arr[:, 5].astype(float)
 
-       
         fig, ax = plt.subplots()
         ax.plot(x, y)
         ax.grid(True)
