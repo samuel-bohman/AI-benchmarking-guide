@@ -13,20 +13,12 @@ from Benchmarks.AMD import LLMBenchmark as llmb
 current = os.getcwd()
 tools.create_dir("Outputs")
 
-
 def get_system_specs():
-
     file = open("Outputs/system_specs.txt", "w")
 
-
-    results = subprocess.run("rocminfo | grep Marketing Name", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    name = results.stdout.decode('utf-8')
-    file.write(name + "\n")
-
-    results = subprocess.run("rocminfo | grep ROCm module version", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    # rocm_version = results.stdout.decode('utf-8').split("\n")[0][3]
-    # file.write("ROCm version     : "+rocm_version+"\n")
-    print(results.stdout.decode('utf-8'))
+    results = subprocess.run("rocminfo | grep 'ROCk module version'", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    rocm_version = results.stdout.decode('utf-8').strip().split(" ")[3]
+    file.write("ROCm version     : "+rocm_version+"\n")
 
     results = subprocess.run("lsb_release -a | grep Release", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     ubuntu = results.stdout.decode('utf-8').strip().split("\t")[1]
@@ -42,10 +34,7 @@ def get_system_specs():
     results = subprocess.run("grep 'cores\|model\|microcode' /proc/cpuinfo | grep cores", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     file.write(results.stdout.decode('utf-8').split("\n")[0])
     file.close()
-    return name.replace(" ", "_")
-
-
-
+    return "AMD_MI300X"
 
 def run_TransferBench():
     test = TB.TransferBench("config.json", current, machine_name)
@@ -57,7 +46,6 @@ def run_GEMMHipBLAS():
     test = GEMM.GEMMHipBLAS("config.json", current, machine_name)
     test.create_container()
     test.build()
-    print("built")
     test.run_model_sizes()
 
 def run_RCCLBandwidth():
@@ -85,15 +73,11 @@ def run_LLMBenchmark():
     test.create_container()
     test.run_benchmark()
 
-machine_name = "MI300"
-
-
-
+machine_name = get_system_specs()
 arguments = []
 match = False
 for arg in sys.argv:
     arguments.append(arg.lower())
-
 
 if ("gemm" in arguments):
     match = True
@@ -134,3 +118,4 @@ if ("all" in arguments):
     run_LLMBenchmark()
 if not match:
     print("Usage: python3 AMD_runner.py [arg]\n   or: python3 AMD_runner.py [arg1] [arg2] ... to run more than one test e.g python3 AMD_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nROCBLAS GEMM:  gemm\nRCCL Bandwidth: rccl\nHBMBandwidth:   hbm\nTransferbench:   transfer\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm")
+    
