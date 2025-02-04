@@ -8,6 +8,8 @@
 | CPU           | Intel(R) Xeon(R) Platinum 8480C |
 | Ubuntu        |   22.04  |
 | ROCm        |   6.8.1  |
+| RCCL  | 2.22.3-develop |
+| HIP | 6.2.41133 |
 | VBIOS  | 113-MI3SRIOV-001 |
 
 
