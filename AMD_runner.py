@@ -34,7 +34,7 @@ def get_system_specs():
     results = subprocess.run("grep 'cores\|model\|microcode' /proc/cpuinfo | grep cores", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     file.write(results.stdout.decode('utf-8').split("\n")[0])
     file.close()
-    return "AMD_MI300X"
+    return "ND_MI300X_v5"
 
 def run_TransferBench():
     test = TB.TransferBench("config.json", current, machine_name)
