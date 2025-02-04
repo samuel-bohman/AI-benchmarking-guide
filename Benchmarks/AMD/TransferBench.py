@@ -76,7 +76,6 @@ class TransferBench:
         runs_executed = 0
         while runs_executed < self.num_runs:
             run_cmd = self.dir_path + "/TransferBench/build/TransferBench " + self.dir_path + "/Benchmarks/AMD/transferbench.cfg"
-            print(run_cmd)
             results = self.container.exec_run(run_cmd, stderr=True)
             if results.exit_code != 0:
                 print(results.output.decode('utf-8'))
