@@ -3,7 +3,7 @@
 
 ## System Specifications
 
-| GPU           | ND MI300X v5 |
+| GPU           | AMD Instinct MI300X |
 |---------------|-------------------|
 | CPU           | Intel(R) Xeon(R) Platinum 8480C |
 | Ubuntu        |   22.04  |
