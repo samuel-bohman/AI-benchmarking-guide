@@ -8,7 +8,6 @@ class FIO:
         
     def run(self):
         current = os.getcwd()
-        
         print("Running FIO Tests...")
         tests = [
             ["read", "1M"],
