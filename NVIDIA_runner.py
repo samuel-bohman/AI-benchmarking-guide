@@ -14,9 +14,7 @@ machine_name = ""
 current = os.getcwd()
 tools.create_dir("Outputs")
 
-
 def get_system_specs():
-
     file = open("Outputs/system_specs.txt", "w")
 
     results = subprocess.run(["nvidia-smi", "--query-gpu=gpu_name,vbios_version,driver_version,memory.total", "--format=csv"], stdout=subprocess.PIPE,stderr=subprocess.PIPE)
@@ -26,7 +24,6 @@ def get_system_specs():
     file.write("driver version   : "+ output[2]+"\n")
     file.write("GPU memory capacity  : "+ output[3]+"\n")
     
-
     results = subprocess.run("nvcc --version | grep release", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     cuda_version = results.stdout.decode('utf-8').split(",")[1].strip().split(" ")[1]
     file.write("CUDA version     : "+cuda_version+"\n")
@@ -50,23 +47,16 @@ def get_system_specs():
     file.close()
     return output[0].strip()
 
-
 def run_CublasLt():
-    test = gemm.GEMMCublastLt("config.json",machine_name)
-
-    # builds the CublasLt binary 
+    test = gemm.GEMMCublastLt("config.json",machine_name) 
     test.build()
-
-    # generates the table with predetermined m,n,k values
     test.run_model_sizes()
 
     # generates power, clock, and gpu temperature plots
     # test.run_nvml()
-
     # runs GEMM sweep and generates shmoo plots (takes about 20 minutes)
     # test.run_shmoo()
     
-
 def run_HBMBandwidth():
     test = HBM.HBMBandwidth("config.json", machine_name)
     test.build()
@@ -99,41 +89,46 @@ def run_LLMBenchmark():
     test.run_benchmark()
 
 machine_name = get_system_specs()
-
 arguments = []
 match = False
 for arg in sys.argv:
     arguments.append(arg.lower())
 
-
 if ("gemm" in arguments):
     match = True
     run_CublasLt()
     os.chdir(current)
+    
 if ("nccl" in arguments):
     match = True
     run_NCCLBandwidth()
     os.chdir(current)
+    
 if ("hbm" in arguments):
     match = True
     run_HBMBandwidth()
     os.chdir(current)
+    
 if ("nv" in arguments):
     match = True
     run_NVBandwidth()
     os.chdir(current)
+    
 if ("fa"  in arguments):
     match = True
     run_FlashAttention()
     os.chdir(current)
+    
 if ("fio" in arguments):
     match = True
     run_FIO()
     os.chdir(current)
+    
 if ("llm" in arguments):
     match = True
     run_LLMBenchmark()
     os.chdir(current)
+    
 if ("all" in arguments):
     match = True
     run_CublasLt()
@@ -150,3 +145,4 @@ if ("all" in arguments):
     run_LLMBenchmark()
 if not match: 
     print("Usage: python3 NVIDIA_runner.py [arg]\n   or: python3 NVIDIA_runner.py [arg1] [arg2] ... to run more than one test e.g python3 NVIDIA_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nCuBLASLt GEMM:  gemm\nNCCL Bandwidth: nccl\nHBMBandwidth:   hbm\nNV Bandwidth:   nv\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm")
+    
