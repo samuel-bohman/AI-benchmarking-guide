@@ -25,8 +25,6 @@ class LLMBenchmark:
 
     def create_container(self):
         client = docker.from_env()
-
-
         # Define the Docker run options
         docker_run_options = {
             'ipc_mode':'host',
@@ -43,12 +41,9 @@ class LLMBenchmark:
             'detach': True
         }
 
-
         # Creates new Docker container
         self.container = client.containers.run('rocm/vllm-dev:20241121-tuned', **docker_run_options)
-
         print(f"Docker Container ID: {self.container.id}")
-
 
     def run_benchmark(self):
         for model_name in self.config['models']:
@@ -101,12 +96,8 @@ class LLMBenchmark:
 
         self.container.kill()
 
-
     def save_data(self, data, file_path):
-
-        # Check if the file exists
         file_exists = os.path.exists(file_path)
-
         # Open the file in append mode if it exists, otherwise create it
         with open(file_path, mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
