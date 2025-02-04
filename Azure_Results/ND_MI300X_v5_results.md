@@ -1,9 +1,9 @@
 
-# AMD MI300X Benchmark Results
+# ND MI300X v5 Benchmark Results
 
 ## System Specifications
 
-| GPU           | AMD MI300X |
+| GPU           | ND MI300X v5 |
 |---------------|-------------------|
 | CPU           | Intel(R) Xeon(R) Platinum 8480C |
 | Ubuntu        |   22.04  |
@@ -16,7 +16,7 @@
 
 The results shown below are with random initialization (best representation of real-life workloads), FP16, and 10,000 warmup iterations.
 
-| m           | n         | k        | AMD MI300X (TFLOPS)    | 
+| m           | n         | k        | ND MI300X v5 (TFLOPS)    | 
 | ----------- | --------- | -------- | ---------------------- |  
 | 1024        | 1024      | 1024     | 53.13                   |  
 | 2048        | 2048      | 2048     |  427.74           |  
@@ -31,7 +31,7 @@ The results shown below are with random initialization (best representation of r
 
 ### HBM Bandwidth
 
-|       | AMD MI300X (TB/s) | 
+|       | ND MI300X v5 (TB/s) | 
 | ----- | ----------------- |  
 | Copy  | 4.11              |  
 | Mul   | 4.26              |  
@@ -44,14 +44,14 @@ The results shown below are with random initialization (best representation of r
 
 The performance (in TFLOPS), in table below, represents the performance for a head dimension of 64, a batch size of 2, and a sequence length of 8192.
 
-|       | AMD MI300X (TFLOPS) | 
+|       | ND MI300X v5 (TFLOPS) | 
 | ----- | ----------------- |  
 | Standard Attention(PyTorch)  | 145.9   |  
 | Flash Attention 2.0   | 328.6  |
 
 ### TransferBench
 
-|                       | AMD MI300X (GB/s) |  
+|                       | ND MI300X v5 (GB/s) |  
 | --------------------- | ----------------- |  
 | Host to Device        | 55                |  
 | Device to Host        | 56                |  
@@ -59,7 +59,7 @@ The performance (in TFLOPS), in table below, represents the performance for a he
 
 ### FIO Tests
 
-| Test             | Batch Size(Bytes) | AMD MI300X (GB/s) |  
+| Test             | Batch Size(Bytes) | ND MI300X v5 (GB/s) |  
 | ---------------- | ----------------- | ----------------- |  
 | Sequential read  | 1M                | 55.9              |  
 | Sequential read  | 512k              | 57.7              |  
@@ -75,7 +75,7 @@ The performance (in TFLOPS), in table below, represents the performance for a he
 
 The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth values obtained from the RCCL AllReduce (NVLS algorithm) tests in-place operations, varying from 1KB to 8GB of data.
 
-| Message Size (Bytes) | AMD MI300X (GB/s) |  
+| Message Size (Bytes) | ND MI300X v5 (GB/s) |  
 | -------------------- | ----------------- |  
 | 1K                   | 0.04              |  
 | 2K                   | 0.07              | 
