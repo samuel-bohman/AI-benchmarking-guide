@@ -26,7 +26,6 @@ class LLMBenchmark:
         except KeyError:
             raise KeyError("no value found")
     
-
     def install_requirements(self):
         # Install required packages
         print("Installing Required Packages")
@@ -36,18 +35,15 @@ class LLMBenchmark:
         os.environ['HF_HOME'] = self.dir_path
         os.environ['LD_LIBRARY_PATH'] = "/home/azureuser/.local/lib/python3.10/site-packages/tensorrt_libs/:/home/azureuser/.local/lib/python3.10/site-packages/tensorrt_llm/libs" + os.environ['LD_LIBRARY_PATH']
 
-
         # Clone TensorRT-LLM repo
         if not os.path.exists(os.path.join(self.dir_path, 'TensorRT-LLM')):
             print("Cloning TensorRT-LLM reopsitory from https://github.com/NVIDIA/TensorRT-LLM.git") 
             i4 = subprocess.run("git clone https://github.com/NVIDIA/TensorRT-LLM.git && cd TensorRT-LLM && git checkout v0.15.0", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
-
     def download_models(self):
         for model_name in self.config['models']:
             if self.config['models'][model_name]['use_model']:
                 snapshot_download(repo_id=model_name, cache_dir=self.dir_path+"/hub")
-
 
     def prepare_datasets(self):
         for model_name in self.config['models']:
@@ -67,7 +63,6 @@ class LLMBenchmark:
                         max_dataset_path = self.dir_path + "/datasets/" + name + "_synthetic_" + str(max_isl) + "_" + str(max_osl) + ".txt" 
 
                     dataset_path = self.dir_path + "/datasets/" + name + "_synthetic_" + str(isl) + "_" + str(osl) + ".txt"
-                    
                     prepare_dataset_command = f'''
                         python3 {self.dir_path}/TensorRT-LLM/benchmarks/cpp/prepare_dataset.py \
                         --stdout \
@@ -98,8 +93,6 @@ class LLMBenchmark:
                     
                     be2 = subprocess.run(build_engine_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     print(be2.stderr.decode('utf-8')) 
-
-
 
     def run_benchmark(self):
         for model_name in self.config['models']:
