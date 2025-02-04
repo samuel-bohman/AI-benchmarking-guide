@@ -34,8 +34,6 @@ class HBMBandwidth:
 
     def create_container(self):
         client = docker.from_env()
-
-
         # Define the Docker run options
         docker_run_options = {
             'ipc_mode':'host',
@@ -51,17 +49,11 @@ class HBMBandwidth:
             'detach': True
         }
 
-        #if existing container exists
-        # self.container = client.containers.get('c34fc0616f7a')
-
         # Creates new Docker container from https://hub.docker.com/r/rocm/pytorch/tags
         self.container = client.containers.run('rocm/pytorch:rocm6.2.3_ubuntu22.04_py3.10_pytorch_release_2.3.0_triton_llvm_reg_issue', **docker_run_options)
-
         print(f"Docker Container ID: {self.container.id}")
 
-
     def build(self):
-
         path = "BabelStream"
         isdir = os.path.isdir(path)
         if not isdir:
@@ -70,8 +62,7 @@ class HBMBandwidth:
             if results.exit_code != 0:
                 print(results.output.decode('utf-8'))
                 return
-
-
+                
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/BabelStream && cmake -Bbuild -H. -DMODEL=hip -DRELEASE_FLAGS="-O3" -DCMAKE_CXX_COMPILER=hipcc && cmake --build build"', stderr=True)
             if results.exit_code != 0:
                 print(results.output.decode('utf-8'))
@@ -79,12 +70,8 @@ class HBMBandwidth:
             else:
                 print("Successfully built target hip-stream")
 
-
     def run(self):
-
         print("Running HBM Bandwidth...")
-
-
         runs_executed = 0
         buffer = []
         while runs_executed < self.num_runs:
@@ -102,7 +89,6 @@ class HBMBandwidth:
             runs_executed += 1
             time.sleep(int(self.interval))
 
-
         self.buffer = buffer
         self.save_results()
         self.container.kill()
@@ -113,7 +99,6 @@ class HBMBandwidth:
         minimum = min(results)/1000000
         stdev = statistics.stdev(results)/1000
         return [round(minimum, 2), round(maximum, 2), round(mean, 2)]
-
 
     def save_results(self):
         copy = ["Copy"]
