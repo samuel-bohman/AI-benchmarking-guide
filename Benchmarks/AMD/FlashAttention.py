@@ -11,7 +11,6 @@ class FlashAttention:
    
     def create_container(self):
         client = docker.from_env()
-        print("creating")
         # Define the Docker run options
         docker_run_options = {
             'ipc_mode':'host',
