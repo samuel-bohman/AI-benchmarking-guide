@@ -5,10 +5,8 @@ import csv
 import csv
 from prettytable import PrettyTable
 
-
 class RCCLBandwidth:
     def __init__(self, config_path:str, dir_path:str, machine: str):
-
         self.name='RCCLBandwidth'
         self.machine_name = machine
         config = self.get_config(config_path)
@@ -29,15 +27,11 @@ class RCCLBandwidth:
     def parse_json(self, config):
         return config['inputs']['start'], config['inputs']['end'], config['inputs']['num_gpus']
 
-
     def config_conversion(self, config)->tuple[list, list, list]:
         return self.parse_json(config)
 
-
     def create_container(self):
         client = docker.from_env()
-
-
         # Define the Docker run options
         docker_run_options = {
             'ipc_mode':'host',
@@ -55,7 +49,6 @@ class RCCLBandwidth:
 
         # Creates new Docker container from https://hub.docker.com/r/rocm/pytorch/tags
         self.container = client.containers.run('rocm/pytorch:rocm6.2.3_ubuntu22.04_py3.10_pytorch_release_2.3.0_triton_llvm_reg_issue', **docker_run_options)
-
         print(f"Docker Container ID: {self.container.id}")
 
     def build(self):
@@ -75,7 +68,6 @@ class RCCLBandwidth:
             if results.exit_code != 0:
                 print(results.output.decode('utf-8'))
 
-
         path ='rccl-tests'
         isdir = os.path.isdir(path)
         if not isdir:
@@ -88,12 +80,9 @@ class RCCLBandwidth:
             if results.exit_code != 0:
                 print(results.output.decode('utf-8'))            
 
-
     def run(self):
-
         buffer=[["8 ","16 ","32 ","64 ","128 ","256 ","512 ","1K","2K","4K","8K","16K","32K","65K","132K","256K", "524K","1M","2M","4M","8M","16M","33M","67M","134M","268M","536M","1G","2G","4G","8G"]]
         runs = ["Tree", "Ring", "NVLS", "NVLSTree"]
-
         print("Running RCCL AllReduce...")
         for run in runs:
             run_cmd = "NCCL_ALGO=" + run + " " + self.dir_path +"/rccl-tests/build/all_reduce_perf -b 8 -e 8G -f 2 -g 8 -n 40 | grep float"
@@ -102,14 +91,12 @@ class RCCLBandwidth:
             if results.exit_code != 0:
                 print(results.output.decode('utf-8'))
                 return            
-
             res = results.output.decode('utf-8').split('\n')
             log = []
             for line in res:
                 line = line.split()
                 if len(line) == 13:
                     log.append(line[11])
-
             buffer.append(log)
 
         table1 = PrettyTable()
