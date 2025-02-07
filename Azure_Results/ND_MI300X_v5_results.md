@@ -16,7 +16,7 @@
 ## Microbenchmarks
 ### GEMM HipBLASLt  
 
-The results shown below are with random initialization (best representation of real-life workloads), FP16, and 10,000 warmup iterations.
+The results shown below are with random initialization (best representation of real-life workloads), FP8, and 10,000 warmup iterations.
 
 | m           | n         | k        | ND MI300X v5 (TFLOPS)    | 
 | ----------- | --------- | -------- | ---------------------- |  
