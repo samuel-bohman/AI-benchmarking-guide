@@ -4,6 +4,7 @@ import csv
 import matplotlib.pyplot as plt
 import subprocess
 import csv
+from Infra import tools
 import numpy as np
 from prettytable import PrettyTable
 
@@ -39,7 +40,7 @@ class NCCLBandwidth:
             build_path = os.path.join(current, 'nccl')
             os.chdir(build_path)
             results = subprocess.run('make -j src.build', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(results.stderr.decode('utf-8')) 
+            tools.write_log(tools.check_error(results))
             os.chdir(current)
       
         results = subprocess.run('export NCCL_HOME=' + current + '/nccl/build', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -52,7 +53,7 @@ class NCCLBandwidth:
             build_path = os.path.join(current, 'nccl-tests')
             os.chdir(build_path)
             results = subprocess.run(['make'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(results.stderr.decode('utf-8')) 
+            tools.write_log(tools.check_error(results))
         else:
             build_path = os.path.join(current, 'nccl-tests')
             os.chdir(build_path)
@@ -65,7 +66,7 @@ class NCCLBandwidth:
         print("Running NCCL AllReduce...")
         for run in runs:
             results = subprocess.run('NCCL_ALGO='+ run +' ./build/all_reduce_perf -b 8 -e 8G -f 2 -g 8 -n 40 | grep float', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print(results.stderr.decode('utf-8'))
+            tools.write_log(tools.check_error(results))
             res = results.stdout.decode('utf-8').split('\n')
             log = []
             for line in res:
