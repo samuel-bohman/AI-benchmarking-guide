@@ -1,6 +1,7 @@
 import json
 import subprocess
 import os
+from Infra import tools
 
 class NVBandwidth:
     def __init__(self, path:str, machine: str):
@@ -35,7 +36,7 @@ class NVBandwidth:
         os.chdir(build_path)
         results = subprocess.run(['sed', '-i', '2i\set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)', 'CMakeLists.txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         results = subprocess.run(['sudo', './debian_install.sh'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(results.stderr.decode('utf-8'))          
+        tools.write_log(tools.check_error(results))       
         os.chdir(current)
 
     def run(self): 
@@ -44,8 +45,8 @@ class NVBandwidth:
         print("Running NVBandwidth...")
         buffer=[] 
         results = subprocess.run('./nvbandwidth -t device_to_host_memcpy_ce host_to_device_memcpy_ce device_to_device_bidirectional_memcpy_read_ce', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        tools.write_log(tools.check_error(results))
         log = results.stdout.decode('utf-8')
-        print(results.stderr.decode('utf-8')) 
         buffer.append(log)
         os.chdir(current)
     
