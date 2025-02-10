@@ -5,6 +5,7 @@ import time
 import csv
 from prettytable import PrettyTable
 import docker
+from Infra import tools
 
 class HBMBandwidth:
     def __init__(self, config_path: str, dir_path: str, machine: str):
@@ -60,12 +61,12 @@ class HBMBandwidth:
             clone_cmd = "git clone https://github.com/gitaumark/BabelStream " + self.dir_path + "/BabelStream"
             results = self.container.exec_run(clone_cmd, stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
                 
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/BabelStream && cmake -Bbuild -H. -DMODEL=hip -DRELEASE_FLAGS="-O3" -DCMAKE_CXX_COMPILER=hipcc && cmake --build build"', stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
             else:
                 print("Successfully built target hip-stream")
@@ -78,7 +79,7 @@ class HBMBandwidth:
             run_cmd = self.dir_path + "/BabelStream/build/hip-stream"
             results = self.container.exec_run(run_cmd, stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
             log = results.output.decode("utf-8").strip().split("\n")[13:19]
             for i in range(len(log)):
