@@ -73,7 +73,7 @@ class GEMMCublastLt:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            print(results.stderr.decode('utf-8'))
+            tools.write_log(tools.check_error(results))
         current = os.getcwd()
         build_path = os.path.join(
             current,
@@ -84,10 +84,12 @@ class GEMMCublastLt:
         results = subprocess.run(
             ["cmake", "-S", "./"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-        print(results.stderr.decode('utf-8'))
+        tools.write_log(tools.check_error(results))
+
         results = subprocess.run(
             ["make"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
+        tools.write_log(tools.check_error(results))
         print(results.stderr.decode('utf-8'))
         results = subprocess.run(
             ["mv", "cublaslt_gemm", bindir],
@@ -136,7 +138,6 @@ class GEMMCublastLt:
         current = os.getcwd()
         os.chdir(self.bindir)
         end_interval = str(self.m[-1])
-        tot_time = 0
         buffer = []
         with open('../Outputs/GEMMCublasLt_Shmoo_'+ self.machine_name +'_' +self.datatype+'.csv', 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -177,15 +178,15 @@ class GEMMCublastLt:
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                             )
-
+                            tools.write_log(tools.check_error(results))
                             log = results.stdout.decode("utf-8")
-                            # print("m: ", self.m[i] ," n: ", self.n[j], " k: ", self.k[t])
+
                             # handle errors and failed cases
                             if log.find("failed") != -1 or log.find("error") != -1:
                                 continue
                             buffer.append(log.split())
                             writer.writerow(log.split())
-                            tot_time = tot_time + start.elapsed_time(end)
+                          
         os.chdir(current)
         return buffer
     
@@ -217,6 +218,7 @@ class GEMMCublastLt:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                 )
+                tools.write_log(tools.check_error(results))
                 log = results.stdout.decode('utf-8').split()
                 curr_time = self.parse_timestamp(str(datetime.datetime.now()).split(' ')[1])
                 log.append(curr_time)
@@ -262,6 +264,7 @@ class GEMMCublastLt:
             )
             log = results.stdout.decode('utf-8').split()
             buffer.append(log)
+            tools.write_log(tools.check_error(results))
         table1 = PrettyTable()  
 
         with open('../Outputs/GEMMCublasLt_Performance_' + self.machine_name + '_' + self.datatype+'.csv', 'w') as csvFile:
