@@ -2,6 +2,7 @@ import json
 import os
 import time
 import docker
+from Infra import tools
 
 class TransferBench:
     def __init__(self, config_path: str, dir_path: str, machine: str):
@@ -56,17 +57,17 @@ class TransferBench:
             clone_cmd = "git clone https://github.com/ROCm/TransferBench.git " + self.dir_path + "/TransferBench"
             results = self.container.exec_run(clone_cmd, stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
 
             results = self.container.exec_run(f'/bin/sh -c "mkdir {self.dir_path}/TransferBench/build && cd {self.dir_path}/TransferBench/build"', stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
 
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/TransferBench/build && CXX=/opt/rocm/bin/hipcc cmake .. && make"', stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
             else:
                 print("Successfully built target TransferBench")
@@ -78,7 +79,7 @@ class TransferBench:
             run_cmd = self.dir_path + "/TransferBench/build/TransferBench " + self.dir_path + "/Benchmarks/AMD/transferbench.cfg"
             results = self.container.exec_run(run_cmd, stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
             log = results.output.decode("utf-8")
             print(log)
