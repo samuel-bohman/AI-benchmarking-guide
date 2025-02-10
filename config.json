@@ -1,4 +1,26 @@
 {
+    "GEMMCublasLt": {
+        "inputs": {
+            "m": {
+                "start": 16,
+                "end": 4096,
+                "interval": 16
+            },
+            "n": {
+                "start": 16,
+                "end": 4096,
+                "interval": 16
+            },
+            "k": {
+                "start": 16,
+                "end": 4096,
+                "interval": 16
+            },
+            "duration": 120,
+            "datatype": "fp8e4m3"
+        }
+    },
+    
     "GEMMHipBLAS": {
         "inputs": {
             "m": {
