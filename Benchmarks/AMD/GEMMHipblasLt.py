@@ -1,8 +1,6 @@
 import json
 import os
-import subprocess
 from Infra import tools
-import numpy as np
 from prettytable import PrettyTable
 import docker
 
@@ -75,21 +73,21 @@ class GEMMHipBLAS:
         if not isdir:
             clone_cmd = "git clone https://github.com/ROCm/hipBLASLt " + self.dir_path + "/hipBLASLt"
             results = self.container.exec_run(clone_cmd, stderr=True)
+            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && git checkout f414c101cd294d81f4a272478ba70ac390164532"', stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return
 
             results = self.container.exec_run(f'sudo apt-get -y update', stderr=True)
-            print(results.output.decode('utf-8'))
+            tools.write_log(results.output.decode('utf-8'))
             results = self.container.exec_run(f'sudo apt -y install llvm-dev', stderr=True)
-            print(results.output.decode('utf-8'))
+            tools.write_log(results.output.decode('utf-8'))
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && ./install.sh -dc -a gfx942"', stderr=True)
-            print(results.output.decode('utf-8'))
+            tools.write_log(results.output.decode('utf-8'))
 
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run_model_sizes(self):
         print("Running HipBLAS...")
-        current = os.getcwd()
         m_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816]
         n_dims = [1024, 2048, 4096, 8192, 16384, 32768, 2145, 12288, 192]
         k_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 12288, 768]
@@ -97,6 +95,7 @@ class GEMMHipBLAS:
         for i in range(len(m_dims)):
             hipblas_cmd = 'cd ' + self.dir_path + '/Benchmarks/AMD && ./hipBLAS_runner.sh ' + str(m_dims[i]) + ' ' +  str(n_dims[i]) + ' ' + str(k_dims[i])
             results = self.container.exec_run(f'/bin/sh -c ' + '"' + hipblas_cmd + '"')
+            tools.write_log(results.output.decode('utf-8'))
 
         with open(self.dir_path + '/Outputs/GEMMHipBLAS_results.txt', 'r') as resFile:
             table1 = PrettyTable()
