@@ -30,7 +30,9 @@ class LLMBenchmark:
         # Install required packages
         print("Installing Required Packages")
         i2 = subprocess.run("apt-get -y install libopenmpi-dev", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        tools.write_log(tools.check_error(i2))
         i2 = subprocess.run("pip3 install --no-cache-dir --extra-index-url https://pypi.nvidia.com tensorrt-libs", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        tools.write_log(tools.check_error(i2))
  
         os.environ['HF_HOME'] = self.dir_path
         os.environ['LD_LIBRARY_PATH'] = "/home/azureuser/.local/lib/python3.10/site-packages/tensorrt_libs/:/home/azureuser/.local/lib/python3.10/site-packages/tensorrt_llm/libs" + os.environ['LD_LIBRARY_PATH']
@@ -39,6 +41,7 @@ class LLMBenchmark:
         if not os.path.exists(os.path.join(self.dir_path, 'TensorRT-LLM')):
             print("Cloning TensorRT-LLM reopsitory from https://github.com/NVIDIA/TensorRT-LLM.git") 
             i4 = subprocess.run("git clone https://github.com/NVIDIA/TensorRT-LLM.git && cd TensorRT-LLM && git checkout v0.15.0", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(i4))
 
     def download_models(self):
         for model_name in self.config['models']:
@@ -76,10 +79,8 @@ class LLMBenchmark:
                         '''                
                     
                     be2 = subprocess.run(prepare_dataset_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                    print(be2.stderr.decode('utf-8')) 
-                    print(be2.stdout.decode('utf-8')) 
-                print(max_dataset_path)
-
+                    tools.write_log(tools.check_error(be2)) 
+                
                 if not os.path.exists(self.dir_path + "/engines/" + model_name):
                     print("Building engine for ", model_name)
                     build_engine_command = f'''
@@ -92,7 +93,7 @@ class LLMBenchmark:
                         ''' 
                     
                     be2 = subprocess.run(build_engine_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                    print(be2.stderr.decode('utf-8')) 
+                    tools.write_log(tools.check_error(be2))
 
     def run_benchmark(self):
         for model_name in self.config['models']:
@@ -115,4 +116,4 @@ class LLMBenchmark:
                         '''                
                     
                     be2 = subprocess.run(run_benchmark_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                    print(be2.stderr.decode('utf-8'))   
+                    tools.write_log(tools.check_error(be2))
