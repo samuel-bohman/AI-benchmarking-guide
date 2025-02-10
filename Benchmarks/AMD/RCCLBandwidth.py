@@ -4,6 +4,7 @@ import os
 import csv
 import csv
 from prettytable import PrettyTable
+from Infra import tools
 
 class RCCLBandwidth:
     def __init__(self, config_path:str, dir_path:str, machine: str):
@@ -58,15 +59,15 @@ class RCCLBandwidth:
             clone_cmd = "git clone https://github.com/ROCm/rccl.git " + self.dir_path + "/rccl"
             results = self.container.exec_run(clone_cmd, stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
  
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/rccl && cmake . && make"', stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 
             results = self.container.exec_run(f'/bin/sh -c "cd .."', stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
 
         path ='rccl-tests'
         isdir = os.path.isdir(path)
@@ -74,11 +75,11 @@ class RCCLBandwidth:
             clone_cmd = "git clone https://github.com/ROCm/rccl-tests.git " + self.dir_path + "/rccl-tests"
             results = self.container.exec_run(clone_cmd, stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
 
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/rccl-tests && make HIP_HOME=/opt/rocm NCCL_HOME={self.dir_path}/rccl CUSTOM_RCCL_LIB={self.dir_path}/rccl/librccl.so && make MPI=1 MPI_HOME=/opt/ompi HIP_HOME=/opt/rocm NCCL_HOME={self.dir_path}/rccl"', stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))            
+                tools.write_log(results.output.decode('utf-8'))            
 
     def run(self):
         buffer=[["8 ","16 ","32 ","64 ","128 ","256 ","512 ","1K","2K","4K","8K","16K","32K","65K","132K","256K", "524K","1M","2M","4M","8M","16M","33M","67M","134M","268M","536M","1G","2G","4G","8G"]]
@@ -89,7 +90,7 @@ class RCCLBandwidth:
             run_cmd = '/bin/sh -c "' + run_cmd + '"'
             results = self.container.exec_run(run_cmd, stderr=True)
             if results.exit_code != 0:
-                print(results.output.decode('utf-8'))
+                tools.write_log(results.output.decode('utf-8'))
                 return            
             res = results.output.decode('utf-8').split('\n')
             log = []
