@@ -4,6 +4,7 @@ import json
 import csv
 from prettytable import PrettyTable
 import json
+from Infra import tools
 
 class LLMBenchmark:
     def __init__(self, config_path: str, dir_path: str, machine: str):
@@ -76,10 +77,9 @@ class LLMBenchmark:
                                         '''
 
                                     rb1 = self.container.exec_run(run_benchmark_command)
-                                    if rb1.exit_code != 0:
-                                        print(rb1.output.decode('utf-8'))
-                                        self.container.kill()
-                                        return
+                                    
+                                    tools.write_log(rb1.output.decode('utf-8'))
+                                    self.container.kill()
 
                                     temp = rb1.output.decode('utf-8').split('\n')
                                     for line in temp:
