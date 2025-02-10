@@ -4,6 +4,7 @@ import statistics
 import subprocess
 import time
 import csv
+from Infra import tools
 from prettytable import PrettyTable
 
 class HBMBandwidth:
@@ -41,6 +42,7 @@ class HBMBandwidth:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+            tools.write_log(tools.check_error(results))
 
         build_path = os.path.join(current, "BabelStream")
         os.chdir(build_path)
@@ -65,11 +67,12 @@ class HBMBandwidth:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            print(results.stderr.decode('utf-8')) 
+            tools.write_log(tools.check_error(results))
+           
             results = subprocess.run(
                 ["make"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
-            print(results.stderr.decode('utf-8')) 
+            tools.write_log(tools.check_error(results))
         else:
             os.chdir(babelstream_build_path)
 
@@ -84,12 +87,12 @@ class HBMBandwidth:
             results = subprocess.run(
                 ["./cuda-stream"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
+            tools.write_log(tools.check_error(results))
             log = results.stdout.decode("utf-8").strip().split("\n")[14:19]
             for i in range(len(log)):
                 temp = log[i].split()
                 log[i] = [temp[0], temp[1]]
             buffer.append(log)
-
             runs_executed += 1
             time.sleep(int(self.interval))
 
