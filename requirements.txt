@@ -13,6 +13,6 @@ torchaudio==2.5.1
 torchvision==0.20.1
 tensorrt-libs==8.6.1
 tensorrt_llm==0.15.0
-transformers==4.47.0
+transformers==4.48.0
 flash-attn==2.7.0.post2
 sympy==1.12.1
