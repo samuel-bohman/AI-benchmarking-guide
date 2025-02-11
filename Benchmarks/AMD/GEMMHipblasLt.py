@@ -73,7 +73,7 @@ class GEMMHipBLAS:
         if not isdir:
             clone_cmd = "git clone https://github.com/ROCm/hipBLASLt " + self.dir_path + "/hipBLASLt"
             results = self.container.exec_run(clone_cmd, stderr=True)
-            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && git checkout f414c101cd294d81f4a272478ba70ac390164532"', stderr=True)
+            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && git checkout a11ccf64efcd818106dbe37768f69dfcc0a7ff22"', stderr=True)
             if results.exit_code != 0:
                 tools.write_log(results.output.decode('utf-8'))
                 return
