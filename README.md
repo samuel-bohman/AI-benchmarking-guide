@@ -65,7 +65,19 @@ The Memory Latency Checker (MLC) measures the bandwidth and latencies between th
 
 # HOW TO RUN THE BENCHMARKS
 
-All the requirements for the benchmarks can be installed with a simple command: `pip3 install -r requirements.txt`.
+Installation of benchmark dependencies requires multiple steps due to packaging deficiencies in `flash-attn`.
+
+```bash
+pip3 install -r requirements_pytorch.txt
+pip3 install flash-attn==2.7.0.post2 --no-build-isolation
+pip3 install -r requirements_main.txt
+```
+
+A convenience script `install-dependencies.sh` is provided to simplify installation. Options are provided to specify `pip` version and target architecture (i.e. Nvidia and AMD).
+
+```bash
+install-dependencies.sh -h
+```
 
 ### NVIDIA
 Usage: `python3 NVIDIA_runner.py [arg]`\
