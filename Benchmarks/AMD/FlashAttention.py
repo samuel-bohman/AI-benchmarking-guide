@@ -5,14 +5,14 @@ from Infra import tools
 
 class FlashAttention:
     def __init__(self, path:str, machine: str):
-        
+
         self.name='FlashAttention'
         self.machine_name = machine
         self.dir_path = path
         self.container = None
 
         self.buffer = []
-    
+
     def create_container(self):
         client = docker.from_env()
         # Define the Docker run options
@@ -34,7 +34,7 @@ class FlashAttention:
         # Creates new Docker container
         self.container = client.containers.run('powderluv/vllm_dev_channel:20240927', **docker_run_options)
         print(f"Docker Container ID: {self.container.id}")
- 
+
     def run(self):
         current = os.getcwd()
         path ='flash-attention'
@@ -42,7 +42,7 @@ class FlashAttention:
         if not isdir:
             results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             tools.write_log(tools.check_error(results))
-        
+
         build_path = os.path.join(current, 'flash-attention')
         os.chdir(build_path)
 
@@ -55,7 +55,7 @@ class FlashAttention:
         #res = self.container.exec_run(f'/bin/sh -c cd {self.dir_path}/flash-attention')
         res = self.container.exec_run(f'python3 {self.dir_path}/flash-attention/benchmarks/benchmark_flash_attention.py | grep -A 2 "batch_size=2, seqlen=8192 ###"')
         tools.write_log(res.output.decode('utf-8'))
-        
+
         self.container.kill()
 
         file = open(self.dir_path + "/Outputs/FlashAttention_" + self.machine_name + ".txt", "w")

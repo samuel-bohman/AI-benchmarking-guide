@@ -63,7 +63,7 @@ class GEMMHipBLAS:
             'detach': True
         }
 
-        # Creates new Docker container 
+        # Creates new Docker container
         self.container = client.containers.run('rocm/vllm-dev:main', **docker_run_options)
         print(f"Docker Container ID: {self.container.id}")
 

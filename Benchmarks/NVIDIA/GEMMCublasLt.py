@@ -4,7 +4,7 @@ import shlex
 import subprocess
 import datetime
 import time
-import csv 
+import csv
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import FormatStrFormatter
@@ -103,8 +103,8 @@ class GEMMCublastLt:
         if os.path.isfile('Outputs/GEMMCublasLt_Shmoo_'+ self.machine_name +'_' +self.datatype+'.csv'):
             self.buffer = self.parse_csv('Outputs/GEMMCublasLt_Shmoo_'+ self.machine_name +'_' +self.datatype+'.csv')
         else:
-            self.buffer = self.run() 
-        self.plot_shmoo()   
+            self.buffer = self.run()
+        self.plot_shmoo()
 
     def run_nvml(self):
         # run nvidia-smi -q -d SUPPORTED_CLOCKS to establish the clock frequency to use
@@ -147,7 +147,7 @@ class GEMMCublastLt:
                 for j in range(len(self.n)):
                     for t in range(len(self.k)):
                         a = str(self.m[i]) == end_interval
-                        b = str(self.n[j]) == end_interval 
+                        b = str(self.n[j]) == end_interval
                         c = str(self.k[t]) == end_interval
 
                         if (a and b) or (b and c) or (a and c):
@@ -186,14 +186,14 @@ class GEMMCublastLt:
                                 continue
                             buffer.append(log.split())
                             writer.writerow(log.split())
-                          
+
         os.chdir(current)
         return buffer
-    
+
     def run_gemm(self):
             current = os.getcwd()
             os.chdir(self.bindir)
-            
+
             t_end = time.time() + self.duration
             buffer = []
             while time.time() < t_end:
@@ -225,19 +225,19 @@ class GEMMCublastLt:
                 buffer.append(log)
             os.chdir(current)
             return buffer
-    
+
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run_model_sizes(self):
         print("Running CublasLt...")
         current = os.getcwd()
         if self.datatype == "fp8e4m3":
-            m_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816, 802816] 
+            m_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816, 802816]
             n_dims = [1024, 2048, 4096, 8192, 16384, 32768, 2145, 12288, 192, 192]
             k_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 12288, 192, 768]
         else:
-            m_dims = [1024, 2048, 4096, 8192, 16384, 1024, 6144, 802816, 802816] 
+            m_dims = [1024, 2048, 4096, 8192, 16384, 1024, 6144, 802816, 802816]
             n_dims = [1024, 2048, 4096, 8192, 16384, 2145, 12288, 192, 192]
-            k_dims = [1024, 2048, 4096, 8192, 16384, 1024, 12288, 192, 768]  
+            k_dims = [1024, 2048, 4096, 8192, 16384, 1024, 12288, 192, 768]
         os.chdir(self.bindir)
         buffer = []
         for i in range(len(m_dims)):
@@ -265,7 +265,7 @@ class GEMMCublastLt:
             log = results.stdout.decode('utf-8').split()
             buffer.append(log)
             tools.write_log(tools.check_error(results))
-        table1 = PrettyTable()  
+        table1 = PrettyTable()
 
         with open('../Outputs/GEMMCublasLt_Performance_' + self.machine_name + '_' + self.datatype+'.csv', 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -287,7 +287,7 @@ class GEMMCublastLt:
         with open(filename, mode='r') as csvfile:
             line_num = 0
             for line in csvfile:
-                
+
                 if line_num > 0:
                     temp_line = line.split(',')
                     res = []
@@ -324,7 +324,7 @@ class GEMMCublastLt:
         t2 = t2 - baseline
 
         fig, (ax, ax2, ax3, ax4)= plt.subplots(4, figsize=(18,18))
-     
+
         ax.plot(t1, p, c="red")
         ax.grid(True)
         ax.set_ylim([50, power_limit + 100])
@@ -348,7 +348,7 @@ class GEMMCublastLt:
         ax4.set_ylim([1000, 1300])
         ax4.set_ylabel("Performance (TFLOPS)", fontsize=14)
         ax4.grid(True)
-        
+
         fig.suptitle("8K GEMM Measurements " + self.machine_name, fontsize=28)
         plt.savefig("Outputs/GEMMCublasLt_Power_"+self.machine_name + "_" +self.datatype+".png", format="png", bbox_inches="tight")
         plt.close()
@@ -363,7 +363,7 @@ class GEMMCublastLt:
                     buffer.append(line.strip().split(','))
                 line_num += 1
         return buffer
-                
+
     def plot_shmoo(self):
         arr = np.array(self.buffer)
         # splitting up the data into m, n, k sweeps
@@ -398,7 +398,7 @@ class GEMMCublastLt:
         plt.ylabel("TFLOPS")
         plt.savefig("Outputs/GEMMCublasLt M Shmoo_" + self.machine_name + "_" + self.datatype + ".png", bbox_inches="tight")
         plt.close(fig)
-        
+
         # plot N Shmoo
         x = n_arr[:, 1].astype(int)
         y = n_arr[:, 5].astype(float)

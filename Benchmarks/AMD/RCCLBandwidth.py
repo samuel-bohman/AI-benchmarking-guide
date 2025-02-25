@@ -60,11 +60,11 @@ class RCCLBandwidth:
             results = self.container.exec_run(clone_cmd, stderr=True)
             if results.exit_code != 0:
                 tools.write_log(results.output.decode('utf-8'))
- 
+
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/rccl && cmake . && make"', stderr=True)
             if results.exit_code != 0:
                 tools.write_log(results.output.decode('utf-8'))
-                
+
             results = self.container.exec_run(f'/bin/sh -c "cd .."', stderr=True)
             if results.exit_code != 0:
                 tools.write_log(results.output.decode('utf-8'))
@@ -79,7 +79,7 @@ class RCCLBandwidth:
 
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/rccl-tests && make HIP_HOME=/opt/rocm NCCL_HOME={self.dir_path}/rccl CUSTOM_RCCL_LIB={self.dir_path}/rccl/librccl.so && make MPI=1 MPI_HOME=/opt/ompi HIP_HOME=/opt/rocm NCCL_HOME={self.dir_path}/rccl"', stderr=True)
             if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))            
+                tools.write_log(results.output.decode('utf-8'))
 
     def run(self):
         buffer=[["8 ","16 ","32 ","64 ","128 ","256 ","512 ","1K","2K","4K","8K","16K","32K","65K","132K","256K", "524K","1M","2M","4M","8M","16M","33M","67M","134M","268M","536M","1G","2G","4G","8G"]]
@@ -91,7 +91,7 @@ class RCCLBandwidth:
             results = self.container.exec_run(run_cmd, stderr=True)
             if results.exit_code != 0:
                 tools.write_log(results.output.decode('utf-8'))
-                return            
+                return
             res = results.output.decode('utf-8').split('\n')
             log = []
             for line in res:

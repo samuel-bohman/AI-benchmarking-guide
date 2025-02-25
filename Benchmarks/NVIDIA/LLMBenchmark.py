@@ -25,7 +25,7 @@ class LLMBenchmark:
             return data[self.name]
         except KeyError:
             raise KeyError("no value found")
-    
+
     def install_requirements(self):
         # Install required packages
         print("Installing Required Packages")
@@ -33,13 +33,13 @@ class LLMBenchmark:
         tools.write_log(tools.check_error(i2))
         i2 = subprocess.run("pip3 install --no-cache-dir --extra-index-url https://pypi.nvidia.com tensorrt-libs", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         tools.write_log(tools.check_error(i2))
- 
+
         os.environ['HF_HOME'] = self.dir_path
         os.environ['LD_LIBRARY_PATH'] = "/home/azureuser/.local/lib/python3.10/site-packages/tensorrt_libs/:/home/azureuser/.local/lib/python3.10/site-packages/tensorrt_llm/libs" + os.environ['LD_LIBRARY_PATH']
 
         # Clone TensorRT-LLM repo
         if not os.path.exists(os.path.join(self.dir_path, 'TensorRT-LLM')):
-            print("Cloning TensorRT-LLM reopsitory from https://github.com/NVIDIA/TensorRT-LLM.git") 
+            print("Cloning TensorRT-LLM reopsitory from https://github.com/NVIDIA/TensorRT-LLM.git")
             i4 = subprocess.run("git clone https://github.com/NVIDIA/TensorRT-LLM.git && cd TensorRT-LLM && git checkout v0.15.0", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             tools.write_log(tools.check_error(i4))
 
@@ -55,7 +55,7 @@ class LLMBenchmark:
             max_sum = 0
             max_dataset_path = ""
             if self.config['models'][model_name]['use_model']:
-                for i in range(len(self.config['models'][model_name]['input_sizes'])): 
+                for i in range(len(self.config['models'][model_name]['input_sizes'])):
                     isl = self.config['models'][model_name]['input_sizes'][i]
                     osl = self.config['models'][model_name]['output_sizes'][i]
                     name = model_name.split('/')[1]
@@ -63,7 +63,7 @@ class LLMBenchmark:
                         max_sum = isl + osl
                         max_isl = isl
                         max_osl = osl
-                        max_dataset_path = self.dir_path + "/datasets/" + name + "_synthetic_" + str(max_isl) + "_" + str(max_osl) + ".txt" 
+                        max_dataset_path = self.dir_path + "/datasets/" + name + "_synthetic_" + str(max_isl) + "_" + str(max_osl) + ".txt"
 
                     dataset_path = self.dir_path + "/datasets/" + name + "_synthetic_" + str(isl) + "_" + str(osl) + ".txt"
                     prepare_dataset_command = f'''
@@ -76,11 +76,11 @@ class LLMBenchmark:
                         --output-mean {osl} \
                         --input-stdev=0 \
                         --output-stdev=0 > {dataset_path}
-                        '''                
-                    
+                        '''
+
                     be2 = subprocess.run(prepare_dataset_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-                    tools.write_log(tools.check_error(be2)) 
-                
+                    tools.write_log(tools.check_error(be2))
+
                 if not os.path.exists(self.dir_path + "/engines/" + model_name):
                     print("Building engine for ", model_name)
                     build_engine_command = f'''
@@ -89,9 +89,9 @@ class LLMBenchmark:
                         --model {model_name} build \
                         --tp_size {self.config['models'][model_name]['tp_size']} \
                         --dataset {max_dataset_path} \
-                        --quantization {self.config['models'][model_name]['precision']} 
-                        ''' 
-                    
+                        --quantization {self.config['models'][model_name]['precision']}
+                        '''
+
                     be2 = subprocess.run(build_engine_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     tools.write_log(tools.check_error(be2))
 
@@ -99,21 +99,21 @@ class LLMBenchmark:
         for model_name in self.config['models']:
             if self.config['models'][model_name]['use_model']:
                 print("Benchmarking ", model_name)
-                for i in range(len(self.config['models'][model_name]['input_sizes'])):               
+                for i in range(len(self.config['models'][model_name]['input_sizes'])):
                     isl = self.config['models'][model_name]['input_sizes'][i]
                     osl = self.config['models'][model_name]['output_sizes'][i]
                     tp = self.config['models'][model_name]['tp_size']
                     name = model_name.split('/')[1]
-                   
+
                     dataset_path = self.dir_path + "/datasets/" + name + "_synthetic_" + str(isl) + "_" + str(osl) + ".txt"
                     results_path = self.dir_path + "/Outputs/results_" + name + "_" + str(isl) + "_" + str(osl) + ".txt"
-                    
+
                     run_benchmark_command = f'''
                         trtllm-bench \
                         --model {model_name} throughput\
                         --dataset {dataset_path} \
                         --engine_dir {self.dir_path + "/engines/" + model_name + "/tp_" + str(tp) + "_pp_1"} > {results_path}
-                        '''                
-                    
+                        '''
+
                     be2 = subprocess.run(run_benchmark_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     tools.write_log(tools.check_error(be2))

@@ -29,7 +29,7 @@ def plot_shmoo(filename, filename2):
     n_arr2 = []
     k_arr2 = []
 
-    
+
     # size of the other 2 dims that are constant
     dim_size = '4096'
     for i in range(len(arr)):
@@ -48,7 +48,7 @@ def plot_shmoo(filename, filename2):
             n_arr2.append(arr2[i])
         if arr2[i][0] == dim_size and arr2[i][1] == dim_size:
             k_arr2.append(arr2[i])
-    
+
     m_arr = np.array(m_arr)
     n_arr = np.array(n_arr)
     k_arr = np.array(k_arr)
@@ -56,7 +56,7 @@ def plot_shmoo(filename, filename2):
     m_arr2 = np.array(m_arr2)
     n_arr2 = np.array(n_arr2)
     k_arr2 = np.array(k_arr2)
-    
+
 
     # plot M Shmoo
     print("M ARR")
@@ -66,8 +66,8 @@ def plot_shmoo(filename, filename2):
     x2 = m_arr2[:, 0].astype(int)
     y2 = m_arr2[:, 5].astype(float)
 
-    
-    
+
+
     fig, ax = plt.subplots(figsize=(16, 8))
     ax.plot(x, y, color="red", label="ND H200 v5")
     ax.plot(x2, y2, color="blue", label="ND H100 v5")
@@ -75,12 +75,12 @@ def plot_shmoo(filename, filename2):
     ax.grid(True)
     fig.suptitle("4K GEMM M Shmoo", fontsize=20)
     ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f"))
-   
+
     ax.set_xlabel("M Dim")
     ax.set_ylabel("TFLOPS")
     plt.savefig("Outputs/GEMMCublasLt M Shmoo_comparison.png", bbox_inches="tight")
     plt.close(fig)
-    
+
     # plot N Shmoo
     print("N ARR")
     x = n_arr[:, 1].astype(int)
@@ -89,8 +89,8 @@ def plot_shmoo(filename, filename2):
     x2 = n_arr2[:, 1].astype(int)
     y2 = n_arr2[:, 5].astype(float)
 
-    
-    
+
+
     fig, ax = plt.subplots(figsize=(16, 8))
     ax.plot(x, y, color="red", label="ND H200 v5")
     ax.plot(x2, y2, color="blue", label="ND H100 v5")
@@ -98,7 +98,7 @@ def plot_shmoo(filename, filename2):
     ax.grid(True)
     fig.suptitle("4K GEMM N Shmoo", fontsize=20)
     ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f"))
-    
+
     ax.set_xlabel("N Dim")
     ax.set_ylabel("TFLOPS")
     plt.savefig("Outputs/GEMMCublasLt N Shmoo_comparison.png", bbox_inches="tight")
@@ -112,8 +112,8 @@ def plot_shmoo(filename, filename2):
     x2 = k_arr2[:, 2].astype(int)
     y2 = k_arr2[:, 5].astype(float)
 
-    
-    
+
+
     fig, ax = plt.subplots(figsize=(16, 8))
     ax.plot(x, y, color="red", label="ND H200 v5")
     ax.plot(x2, y2, color="blue", label="ND H100 v5")

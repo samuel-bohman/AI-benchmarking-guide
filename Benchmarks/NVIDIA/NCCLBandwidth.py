@@ -1,6 +1,6 @@
 import json
 import os
-import csv 
+import csv
 import matplotlib.pyplot as plt
 import subprocess
 import csv
@@ -15,7 +15,7 @@ class NCCLBandwidth:
         config = self.get_config(path)
         self.start, self.end, self.num_gpus = self.config_conversion(config)
         self.buffer = []
-    
+
     def get_config(self, path: str):
         file = open(path)
         data = json.load(file)
@@ -27,10 +27,10 @@ class NCCLBandwidth:
 
     def parse_json(self, config):
         return config['inputs']['start'], config['inputs']['end'], config['inputs']['num_gpus']
-    
+
     def config_conversion(self, config)->tuple[list, list, list]:
         return self.parse_json(config)
-        
+
     def build(self):
         current = os.getcwd()
         path ='nccl'
@@ -42,10 +42,10 @@ class NCCLBandwidth:
             results = subprocess.run('make -j src.build', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             tools.write_log(tools.check_error(results))
             os.chdir(current)
-      
+
         results = subprocess.run('export NCCL_HOME=' + current + '/nccl/build', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         results = subprocess.run('export LD_LIBRARY_PATH=' + current + '/nccl/build/lib:$LD_LIBRARY_PATH', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        
+
         path ='nccl-tests'
         isdir = os.path.isdir(path)
         if not isdir:
@@ -57,8 +57,8 @@ class NCCLBandwidth:
         else:
             build_path = os.path.join(current, 'nccl-tests')
             os.chdir(build_path)
-      
-    def run(self): 
+
+    def run(self):
         current = os.getcwd()
         buffer=[["8 ","16 ","32 ","64 ","128 ","256 ","512 ","1K","2K","4K","8K","16K","32K","65K","132K","256K", "524K","1M","2M","4M","8M","16M","33M","67M","134M","268M","536M","1G","2G","4G","8G"]]
         runs = ["Tree", "Ring", "NVLS", "NVLSTree"]
@@ -73,13 +73,13 @@ class NCCLBandwidth:
                 line = line.split()
                 if len(line) == 13:
                     log.append(line[11])
-            
+
             buffer.append(log)
-        
+
         table1 = PrettyTable()
         runs = ["Message Size", "Tree", "Ring", "NVLS", "NVLSTree"]
         for i in range(len(buffer)):
-            table1.add_column(runs[i], buffer[i])    
+            table1.add_column(runs[i], buffer[i])
         print(table1)
         self.buffer=buffer
         self.save()
@@ -93,12 +93,12 @@ class NCCLBandwidth:
         y4 = np.array(self.buffer[4]).astype(float)[12:]
         width = 0.8
         widt = 0.2
-        
-        plt.bar(x-width, y1, widt) 
-        plt.bar(x, y2, widt) 
-        plt.bar(x+width, y3, widt) 
+
+        plt.bar(x-width, y1, widt)
+        plt.bar(x, y2, widt)
+        plt.bar(x+width, y3, widt)
         plt.bar(x+(2*width), y4, widt)
-        plt.bar(x+(3*width), 0, widt) 
+        plt.bar(x+(3*width), 0, widt)
         plt.savefig("../Outputs/NCCLres.png")
         self.save()
 
@@ -106,8 +106,8 @@ class NCCLBandwidth:
         with open('../Outputs/NCCLBandwidth_' + self.machine_name + '.csv', 'w') as csvFile:
             writer = csv.writer(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(["Message Size", "Tree", "Ring", "NVLS", "NVLSTree"])
-            
+
             for i in range(len(self.buffer[0])):
-                row = [self.buffer[0][i], self.buffer[1][i], self.buffer[2][i], self.buffer[3][i], self.buffer[4][i]]  
+                row = [self.buffer[0][i], self.buffer[1][i], self.buffer[2][i], self.buffer[3][i], self.buffer[4][i]]
                 writer.writerow(row)
-    
+

@@ -52,7 +52,7 @@ class HBMBandwidth:
         arch ="sm_90"
         if "A100" in self.machine_name:
             arch = "sm_80"
-            
+
         if not os.path.isdir(babelstream_build_path):
             os.mkdir(babelstream_build_path)
             os.chdir(babelstream_build_path)
@@ -68,7 +68,7 @@ class HBMBandwidth:
                 stderr=subprocess.PIPE,
             )
             tools.write_log(tools.check_error(results))
-           
+
             results = subprocess.run(
                 ["make"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
@@ -96,7 +96,7 @@ class HBMBandwidth:
             runs_executed += 1
             time.sleep(int(self.interval))
 
-    
+
         self.buffer = buffer
         os.chdir(current)
         self.save_results()
@@ -106,7 +106,7 @@ class HBMBandwidth:
         maximum = max(results)/1000000
         minimum = min(results)/1000000
         return [round(minimum, 2), round(maximum, 2), round(mean, 2)]
-    
+
 
     def save_results(self):
         copy = ["Copy"]
@@ -126,7 +126,7 @@ class HBMBandwidth:
         add[1:] = self.process_stats(add[1:])
         triad[1:] = self.process_stats(triad[1:])
         dot[1:] = self.process_stats(dot[1:])
-        
+
         table1 = PrettyTable()
         table1.field_names = ["Operation","Min (TB/s)", "Max (TB/s)", "Mean (TB/s)"]
         table1.add_row(copy)

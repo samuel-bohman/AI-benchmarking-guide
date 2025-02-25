@@ -77,7 +77,7 @@ class LLMBenchmark:
                                         '''
 
                                     rb1 = self.container.exec_run(run_benchmark_command)
-                                    
+
                                     tools.write_log(rb1.output.decode('utf-8'))
                                     self.container.kill()
 
