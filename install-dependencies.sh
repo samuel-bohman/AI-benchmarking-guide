@@ -1,73 +1,95 @@
 #!/bin/bash
-# Installs Python environment dependencies
-set -e
+# Installs Python environment dependencies for Azure AI Benchmarking.
+set -euo pipefail
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 [pip_command] [platform_type]"
-    echo ""
-    echo "Arguments:"
-    echo "  pip_command     The pip executable to use (default: pip3)"
-    echo "  platform_type   The environment type, must be 'nvidia' or 'amd' (default: nvidia)"
-    echo ""
-    echo "Example:"
-    echo "  $0 'uv pip' nvidia   # Use uv pip instead of pip3, platform type 'nvidia'"
-    echo "  $0                   # Defaults to pip3 and nvidia"
-    echo "  $0 --help            # Show this help message"
+    cat <<EOF
+Usage: $0 [pip_command]
+
+Arguments:
+  pip_command     The pip executable to use (default: 'python3 -m pip')
+
+Example:
+  $0 'uv pip'          # Use 'uv pip' instead of 'python3 -m pip'
+  $0                   # Defaults to 'python3 -m pip'
+  $0 --help            # Show this help message
+EOF
     exit 1
 }
 
-if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
     usage
 fi
 
-pip=${1:-pip3}
-platform=${2:-nvidia}
+pip=${1:-'python3 -m pip'}
+
+# Determine GPU platform
+if command -v rocminfo &> /dev/null && rocminfo &> /dev/null; then
+    platform='AMD'
+elif command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+    platform='NVIDIA'
+else
+    echo -e "\e[1;31m[Error] No NVIDIA or AMD GPU detected. Exiting.\e[0m" >&2
+    exit 1
+fi
 
 echo "Using ${pip} to install AI Benchmarking Python dependencies for ${platform} platform"
-if [ -z "${VIRTUAL_ENV}" ]; then
-    echo -e "\e[1;33m[Warning] Installing dependencies outside of a virtual environment.\e[0m"
+
+# Warn if installing outside a virtual environment
+if [ -z "${VIRTUAL_ENV:-}" ]; then
+    printf "\033[1;33m[Warning] Installing dependencies outside of a virtual environment.\033[0m\n"
 else
-    echo "- Installing dependencies in virtual environment located at: ${VIRTUAL_ENV}"
+    echo "- Installing dependencies in virtual environment at: ${VIRTUAL_ENV}"
 fi
 echo ""
 
-if [[ "$platform" == "nvidia" ]]; then
-    $pip install -r requirements_torch_nvidia.txt
-    $pip install $(cat requirements_flashattn.txt) --no-build-isolation
-    $pip install -r requirements_main.txt
-elif [[ "$platform" == "amd" ]]; then
-    # Install PyTorch: https://pytorch.org/get-started/locally/
-    $pip install -r requirements_torch_amd.txt
-    # Still need other packages for AMD so adding them here so they are grouped similarly to Nvidia
-    # Can't add in requirements because the index-url doesn't have them available
-    $pip install packaging setuptools wheel
+# Function to clone a repo if it doesn't exist
+clone_repo() {
+    local repo_url=$1
+    local repo_dir=$2
+    local checkout_commit=${3:-}
 
-    # Install steps to build FlashAttention: https://github.com/Dao-AILab/flash-attention
-    echo "Building FlashAttention for AMD/ROCm"
-    if [ -d triton ]; then
-        echo "triton already exists.  Skipping clone."
+    if [ -d "$repo_dir" ]; then
+        echo "$repo_dir already exists. Skipping clone."
     else
-        git clone https://github.com/triton-lang/triton
+        git clone "$repo_url" "$repo_dir"
     fi
+
+    pushd "$repo_dir" > /dev/null || { echo "Failed to enter $repo_dir"; exit 1; }
+    [ -n "$checkout_commit" ] && git checkout "$checkout_commit"
+    popd > /dev/null
+}
+
+# Install dependencies based on GPU platform
+if [[ "$platform" == "AMD" ]]; then
+    $pip install -r requirements_torch_amd.txt
+    # Cannot install from requirements_torch_amd because these packages are not availabile in
+    # the index-url required for ROCm torch libs.  Installing here to maintain same grouping.
+    $pip install ninja packaging psutil setuptools wheel
+
+    echo "Building FlashAttention for AMD/ROCm"
+    clone_repo "https://github.com/triton-lang/triton" "triton" "3ca2f498e98ed7249b82722587c511a5610e00c4"
     pushd triton > /dev/null
-    git checkout 3ca2f498e98ed7249b82722587c511a5610e00c4
-    $pip install --verbose -e python
+    $pip install -e python
     popd > /dev/null
 
     export FLASH_ATTENTION_TRITON_AMD_ENABLE="TRUE"
-    if [ -d 'flash-attention' ]; then
-        echo "flash-attention already exists.  Skipping clone."
-    else
-        git clone https://github.com/Dao-AILab/flash-attention.git
-    fi
+    clone_repo "https://github.com/Dao-AILab/flash-attention.git" "flash-attention"
     pushd flash-attention > /dev/null
-    python setup.py install
+    python3 setup.py install
     popd > /dev/null
 
-    # tensorrt won't install on AMD SKUs
     $pip install $(grep -v tensorrt requirements_main.txt)
-else
-    echo "Specified target platform ${platform} not recognized. Supported platform 'nvidia' or 'amd'"
-    exit 1
+
+elif [[ "$platform" == "NVIDIA" ]]; then
+    $pip install -r requirements_torch_nvidia.txt
+    $pip install $(cat requirements_flashattn.txt) --no-build-isolation
+    $pip install -r requirements_main.txt
+fi
+
+# Warn if fio not installed
+if ! command -v fio &> /dev/null; then
+    printf "\033[1;33m[Warning] fio is not available in current PATH.\033[0m\n"
+    printf "\033[1;33m[Warning] It may need to be installed to run the fio benchmark.\033[0m\n"
 fi
