@@ -82,6 +82,7 @@ class GEMMHipBLAS:
             tools.write_log(results.output.decode('utf-8'))
             results = self.container.exec_run(f'sudo apt -y install llvm-dev', stderr=True)
             tools.write_log(results.output.decode('utf-8'))
+            print("Building hipBLAS Library...")
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && ./install.sh -dc -a gfx942"', stderr=True)
             tools.write_log(results.output.decode('utf-8'))
 
