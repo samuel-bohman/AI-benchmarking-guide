@@ -63,7 +63,7 @@ class HBMBandwidth:
             if results.exit_code != 0:
                 tools.write_log(results.output.decode('utf-8'))
                 return
-                
+
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/BabelStream && cmake -Bbuild -H. -DMODEL=hip -DRELEASE_FLAGS="-O3" -DCMAKE_CXX_COMPILER=hipcc && cmake --build build"', stderr=True)
             if results.exit_code != 0:
                 tools.write_log(results.output.decode('utf-8'))

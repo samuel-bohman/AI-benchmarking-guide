@@ -8,11 +8,6 @@ numpy==1.26.4
 packaging==24.1
 pandas==2.2.3
 prettytable==3.11.0
-torch==2.5.1
-torchaudio==2.5.1
-torchvision==0.20.1
-tensorrt-libs==8.6.1
-tensorrt_llm==0.15.0
 transformers==4.48.0
-flash-attn==2.7.0.post2
-sympy==1.12.1
+sympy==1.13.1
+tensorrt==10.8.0.43

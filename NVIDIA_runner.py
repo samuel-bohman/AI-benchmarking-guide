@@ -1,6 +1,9 @@
 import os
 import sys
 import subprocess
+
+import torch
+
 from Benchmarks.NVIDIA import GEMMCublasLt as gemm
 from Benchmarks.NVIDIA import HBMBandwidth as HBM
 from Benchmarks.NVIDIA import NVBandwidth as NV
@@ -32,8 +35,7 @@ def get_system_specs():
     ubuntu = results.stdout.decode('utf-8').strip().split("\t")[1]
     file.write("ubuntu version   : "+ubuntu+"\n")
 
-    results = subprocess.run("pip3 show torch | grep Version", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    file.write("pytorch version  : "+ results.stdout.decode('utf-8').split(" ")[1].strip()+"\n")
+    file.write("pytorch version  : {torch.__version__}\n")
 
     results = subprocess.run("grep 'stepping\|model\|microcode' /proc/cpuinfo | grep microcode", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     microcode = results.stdout.decode('utf-8').split("\n")[0]
