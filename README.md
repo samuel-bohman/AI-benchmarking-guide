@@ -106,3 +106,17 @@ LLM Inference Workloads: `llm`
 - Test results will be stored in the `Outputs` directory.
 
 You can find example of results for the ND A100 v4, ND H100 v5 and ND H200 v5 virtual machines stored under [`Azure_Results`](https://github.com/Azure/AI-benchmarking-guide/tree/main/Azure_Results).
+
+### Storage
+- The benchmarks, especially LLM Benchmarks, take up a lot of space. Therefore, we recommend cloning this benchmark repository onto a mounted NVMe disk. 
+- The AMD benchmarks are ran in docker containers, which are automatically created and killed when the tests are ran. To make sure that these docker containers don't fill up your storage space, you can change the default location that docker stores its files. Do this by:
+
+  `vim /etc/docker/daemon.json`
+
+  make sure `data-root` points to a directory on the mounted NVMe disk, or somewhere with sufficient storage space (we recommend at least 1TB of free space)
+
+  ```
+  {
+       "data-root":"/mnt/resource_nvme/docker", 
+  }
+  ```
