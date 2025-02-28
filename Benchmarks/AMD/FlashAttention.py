@@ -55,6 +55,7 @@ class FlashAttention:
         #res = self.container.exec_run(f'/bin/sh -c cd {self.dir_path}/flash-attention')
         res = self.container.exec_run(f'python3 {self.dir_path}/flash-attention/benchmarks/benchmark_flash_attention.py | grep -A 2 "batch_size=2, seqlen=8192 ###"')
         tools.write_log(res.output.decode('utf-8'))
+        print(res.output.decode('utf-8'))
 
         self.container.kill()
 
