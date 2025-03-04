@@ -4,7 +4,7 @@ import statistics
 import time
 import csv
 from prettytable import PrettyTable
-import docker
+import subprocess
 from Infra import tools
 
 class HBMBandwidth:
@@ -32,56 +32,25 @@ class HBMBandwidth:
     def config_conversion(self, config) -> tuple[list, list, list]:
         return self.parse_json(config)
 
-
-    def create_container(self):
-        client = docker.from_env()
-        # Define the Docker run options
-        docker_run_options = {
-            'ipc_mode':'host',
-            'entrypoint': '/bin/bash',
-            'network': 'host',
-            'group_add': ['render'],
-            'privileged': True,
-            'security_opt': ['seccomp=unconfined'],
-            'cap_add': ['CAP_SYS_ADMIN', 'SYS_PTRACE'],
-            'devices': ['/dev/kfd', '/dev/dri', '/dev/mem'],
-            'volumes': {str(self.dir_path): {'bind': str(self.dir_path), 'mode': 'rw'}},
-            'tty': True,
-            'detach': True
-        }
-
-        # Creates new Docker container from https://hub.docker.com/r/rocm/pytorch/tags
-        self.container = client.containers.run('rocm/pytorch:rocm6.2.3_ubuntu22.04_py3.10_pytorch_release_2.3.0_triton_llvm_reg_issue', **docker_run_options)
-        print(f"Docker Container ID: {self.container.id}")
-
     def build(self):
         path = "BabelStream"
         isdir = os.path.isdir(path)
         if not isdir:
             clone_cmd = "git clone https://github.com/gitaumark/BabelStream " + self.dir_path + "/BabelStream"
-            results = self.container.exec_run(clone_cmd, stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
-
-            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/BabelStream && cmake -Bbuild -H. -DMODEL=hip -DRELEASE_FLAGS="-O3" -DCMAKE_CXX_COMPILER=hipcc && cmake --build build"', stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
-            else:
-                print("Successfully built target hip-stream")
+            results = subprocess.run(clone_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
+            results = subprocess.run('cd ' + self.dir_path + '/BabelStream && cmake -Bbuild -H. -DMODEL=hip -DRELEASE_FLAGS="-O3" -DCMAKE_CXX_COMPILER=hipcc && cmake --build build', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
 
     def run(self):
         print("Running HBM Bandwidth...")
         runs_executed = 0
         buffer = []
         while runs_executed < self.num_runs:
-            run_cmd = self.dir_path + "/BabelStream/build/hip-stream"
-            results = self.container.exec_run(run_cmd, stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
-            log = results.output.decode("utf-8").strip().split("\n")[13:19]
+            run_cmd = "sudo " + self.dir_path + "/BabelStream/build/hip-stream"
+            results = subprocess.run(run_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
+            log = results.stdout.decode("utf-8").strip().split("\n")[13:19]
             for i in range(len(log)):
                 temp = log[i].split()
                 log[i] = [temp[0], temp[1]]
@@ -92,7 +61,6 @@ class HBMBandwidth:
 
         self.buffer = buffer
         self.save_results()
-        self.container.kill()
 
     def process_stats(self, results):
         mean = statistics.mean(results)/1000000
