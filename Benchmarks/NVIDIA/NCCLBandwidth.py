@@ -36,6 +36,7 @@ class NCCLBandwidth:
         path ='nccl'
         isdir = os.path.isdir(path)
         if not isdir:
+            print("Building NCCL Library...")
             results = subprocess.run(['git', 'clone', 'https://github.com/NVIDIA/nccl.git', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             build_path = os.path.join(current, 'nccl')
             os.chdir(build_path)
@@ -49,6 +50,7 @@ class NCCLBandwidth:
         path ='nccl-tests'
         isdir = os.path.isdir(path)
         if not isdir:
+            print("Building NCCL Test..")
             results = subprocess.run(['git', 'clone', 'https://github.com/NVIDIA/nccl-tests.git', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             build_path = os.path.join(current, 'nccl-tests')
             os.chdir(build_path)
