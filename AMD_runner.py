@@ -112,6 +112,7 @@ if ("all" in arguments):
     run_RCCLBandwidth()
     run_FIO()
     run_FlashAttention()
+    os.chdir(current)
     run_LLMBenchmark()
     run_GEMMHipBLAS()
 if not match:
