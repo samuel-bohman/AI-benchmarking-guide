@@ -32,8 +32,9 @@ class FlashAttention:
         }
 
         # Creates new Docker container
+        print("Pulling docker container powderluv/vllm_dev_channel:20240927...")
         self.container = client.containers.run('powderluv/vllm_dev_channel:20240927', **docker_run_options)
-        print(f"Docker Container ID: {self.container.id}")
+        print(f"Created Docker Container ID: {self.container.id}")
 
     def run(self):
         current = os.getcwd()
