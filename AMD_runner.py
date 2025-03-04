@@ -110,8 +110,8 @@ if ("all" in arguments):
     run_HBMBandwidth()
     run_TransferBench()
     run_RCCLBandwidth()
-    run_FlashAttention()
     run_FIO()
+    run_FlashAttention()
     run_LLMBenchmark()
     run_GEMMHipBLAS()
 if not match:
