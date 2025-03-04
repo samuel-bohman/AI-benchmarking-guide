@@ -1,4 +1,5 @@
 import subprocess
+from Infra import tools
 
 class FIO:
     def __init__(self, path: str, machine: str):
@@ -7,7 +8,6 @@ class FIO:
         self.dir_path = path
 
     def run(self):
-        
         print("Running FIO Tests...")
         tests = [
             ["read", "1M"],
@@ -28,6 +28,7 @@ class FIO:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+            tools.write_log(tools.check_error(results))
             res = results.stdout.decode('utf-8').split()[2].strip(",()")
             res = test[0] + " BS=" + test[1] + ": " + res
             print(res)
@@ -40,3 +41,4 @@ class FIO:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
+        tools.write_log(tools.check_error(results))
