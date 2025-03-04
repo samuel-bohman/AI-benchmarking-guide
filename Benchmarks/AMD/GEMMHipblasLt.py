@@ -64,8 +64,9 @@ class GEMMHipBLAS:
         }
 
         # Creates new Docker container
+        print("Pulling docker container rocm/vllm-dev:main...")
         self.container = client.containers.run('rocm/vllm-dev:main', **docker_run_options)
-        print(f"Docker Container ID: {self.container.id}")
+        print(f"Created Docker Container ID: {self.container.id}")
 
     def build(self):
         path = "hipBLASLt"
