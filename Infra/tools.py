@@ -19,5 +19,6 @@ def write_log(message: str, filename: str = pwd):
 
 def check_error(results):
     if results.stderr:
+        print(results.stderr.decode("utf-8"))
         return results.stderr.decode("utf-8")
     return results.stdout.decode("utf-8")
