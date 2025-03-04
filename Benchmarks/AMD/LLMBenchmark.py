@@ -43,6 +43,7 @@ class LLMBenchmark:
         }
 
         # Creates new Docker container
+        print("Pulling docker container rocm/vllm-dev:20241121-tuned")
         self.container = client.containers.run('rocm/vllm-dev:20241121-tuned', **docker_run_options)
         print(f"Docker Container ID: {self.container.id}")
 
