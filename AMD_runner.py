@@ -38,7 +38,6 @@ def get_system_specs():
 
 def run_TransferBench():
     test = TB.TransferBench("config.json", current, machine_name)
-    test.create_container()
     test.build()
     test.run()
 
