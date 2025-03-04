@@ -1,7 +1,7 @@
 import json
 import os
 import time
-import docker
+import subprocess
 from Infra import tools
 
 class TransferBench:
@@ -29,65 +29,32 @@ class TransferBench:
     def config_conversion(self, config) -> tuple[list, list, list]:
         return self.parse_json(config)
 
-    def create_container(self):
-        client = docker.from_env()
-        # Define the Docker run options
-        docker_run_options = {
-            'ipc_mode':'host',
-            'entrypoint': '/bin/bash',
-            'network': 'host',
-            'group_add': ['render'],
-            'privileged': True,
-            'security_opt': ['seccomp=unconfined'],
-            'cap_add': ['CAP_SYS_ADMIN', 'SYS_PTRACE'],
-            'devices': ['/dev/kfd', '/dev/dri', '/dev/mem'],
-            'volumes': {str(self.dir_path): {'bind': str(self.dir_path), 'mode': 'rw'}},
-            'tty': True,
-            'detach': True
-        }
-
-        # Creates new Docker container from https://hub.docker.com/r/rocm/pytorch/tags
-        self.container = client.containers.run('rocm/pytorch:rocm6.2.3_ubuntu22.04_py3.10_pytorch_release_2.3.0_triton_llvm_reg_issue', **docker_run_options)
-        print(f"Docker Container ID: {self.container.id}")
-
     def build(self):
         path = "TransferBench"
         isdir = os.path.isdir(path)
         if not isdir:
+            print("Building TransferBench...")
             clone_cmd = "git clone https://github.com/ROCm/TransferBench.git " + self.dir_path + "/TransferBench"
-            results = self.container.exec_run(clone_cmd, stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
+            results = subprocess.run(clone_cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
+            results = subprocess.run("mkdir " + self.dir_path + "/TransferBench/build && cd" + self.dir_path + "/TransferBench/build", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
 
-            results = self.container.exec_run(f'/bin/sh -c "mkdir {self.dir_path}/TransferBench/build && cd {self.dir_path}/TransferBench/build"', stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
-
-            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/TransferBench/build && CXX=/opt/rocm/bin/hipcc cmake .. && make"', stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
-            else:
-                print("Successfully built target TransferBench")
-
+            results = subprocess.run("cd " + self.dir_path + "/TransferBench/build && CXX=/opt/rocm/bin/hipcc cmake .. && make", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
+            
     def run(self):
         print("Running TransferBench...")
         runs_executed = 0
         while runs_executed < self.num_runs:
-            run_cmd = self.dir_path + "/TransferBench/build/TransferBench " + self.dir_path + "/Benchmarks/AMD/transferbench.cfg"
-            results = self.container.exec_run(run_cmd, stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
-            log = results.output.decode("utf-8")
+            run_cmd = "sudo " + self.dir_path + "/TransferBench/build/TransferBench " + self.dir_path + "/Benchmarks/AMD/transferbench.cfg | grep -v '='"
+            results = subprocess.run(run_cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
+            log = results.stdout.decode("utf-8")
             print(log)
             self.save(log, 'Outputs/TransferBench_' + self.machine_name + '.txt')
             runs_executed += 1
             time.sleep(int(self.interval))
-
-        self.container.kill()
 
     def save(self, data, filename):
         with open(filename, mode='w', encoding='utf-8') as file:
