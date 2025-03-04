@@ -49,6 +49,7 @@ class RCCLBandwidth:
         }
 
         # Creates new Docker container from https://hub.docker.com/r/rocm/pytorch/tags
+        print("Pulling docker container rocm/pytorch:rocm6.2.3_ubuntu22.04_py3.10_pytorch_release_2.3.0_triton_llvm_reg_issue...")
         self.container = client.containers.run('rocm/pytorch:rocm6.2.3_ubuntu22.04_py3.10_pytorch_release_2.3.0_triton_llvm_reg_issue', **docker_run_options)
         print(f"Docker Container ID: {self.container.id}")
 
