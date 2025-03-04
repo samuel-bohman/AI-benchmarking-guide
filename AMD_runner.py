@@ -107,13 +107,13 @@ if ("llm" in arguments):
 
 if ("all" in arguments):
     match = True
-    run_GEMMHipBLAS()
-    run_RCCLBandwidth()
     run_HBMBandwidth()
     run_TransferBench()
+    run_RCCLBandwidth()
     run_FlashAttention()
     run_FIO()
     run_LLMBenchmark()
+    run_GEMMHipBLAS()
 if not match:
     print("Usage: python3 AMD_runner.py [arg]\n   or: python3 AMD_runner.py [arg1] [arg2] ... to run more than one test e.g python3 AMD_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nROCBLAS GEMM:  gemm\nRCCL Bandwidth: rccl\nHBMBandwidth:   hbm\nTransferbench:   transfer\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm")
     
