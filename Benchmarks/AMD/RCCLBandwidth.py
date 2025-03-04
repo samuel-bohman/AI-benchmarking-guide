@@ -57,6 +57,7 @@ class RCCLBandwidth:
         path ='rccl'
         isdir = os.path.isdir(path)
         if not isdir:
+            print("Building RCCL Library...")
             clone_cmd = "git clone https://github.com/ROCm/rccl.git " + self.dir_path + "/rccl"
             results = self.container.exec_run(clone_cmd, stderr=True)
             if results.exit_code != 0:
@@ -73,6 +74,7 @@ class RCCLBandwidth:
         path ='rccl-tests'
         isdir = os.path.isdir(path)
         if not isdir:
+            print("Building RCCL Tests...")
             clone_cmd = "git clone https://github.com/ROCm/rccl-tests.git " + self.dir_path + "/rccl-tests"
             results = self.container.exec_run(clone_cmd, stderr=True)
             if results.exit_code != 0:
@@ -111,7 +113,6 @@ class RCCLBandwidth:
         self.buffer=buffer
         self.container.kill()
         self.save()
-
 
     def save(self):
         with open('Outputs/RCCLBandwidth_' + self.machine_name + '.csv', 'w') as csvFile:
