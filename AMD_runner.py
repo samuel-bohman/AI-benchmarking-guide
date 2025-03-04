@@ -64,7 +64,6 @@ def run_FIO():
 
 def run_HBMBandwidth():
     test = HBM.HBMBandwidth("config.json", current, machine_name)
-    test.create_container()
     test.build()
     test.run()
 
