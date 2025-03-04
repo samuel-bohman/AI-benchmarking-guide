@@ -92,7 +92,7 @@ Usage: `python3 AMD_runner.py [arg]`\
 Arguments are as follows, and are case insensitive:\
 All tests:  `all`\
 HipBLAS GEMM:  `gemm`\
-RCCL Bandwidth: `nccl`\
+RCCL Bandwidth: `rccl`\
 HBMBandwidth:   `hbm`\
 TransferBench:   `transfer`\
 Flash Attention: `fa`\
@@ -100,20 +100,22 @@ FIO Tests:   `fio`\
 LLM Inference Workloads: `llm`
 
 ### Extras
+- The console output and errors are logged in `Outputs/log.txt.`
 - The file [`config.json`](https://github.com/Azure/AI-benchmarking-guide/blob/main/config.json) contains the specific settings for the benchmarks.
 - The [`models`](https://github.com/Azure/AI-benchmarking-guide/blob/b2d64036d7ba6d4171e0f1ece26967dc97c7740f/config.json#L83) field in `config.json` contains all the inference models that can be benchmarked. To run benchmark for a specific model, set `use_model: true`. They are all set to `false` by default.
 - All the AMD models in `config.json` are marked with `"type": "amd"`
+- All the NVIDIA models in `config.json` are marked with `"type": "nvidia"`
 - Test results will be stored in the `Outputs` directory.
 
 You can find example of results for the ND A100 v4, ND H100 v5 and ND H200 v5 virtual machines stored under [`Azure_Results`](https://github.com/Azure/AI-benchmarking-guide/tree/main/Azure_Results).
 
 ### Storage
 - The benchmarks, especially LLM Benchmarks, take up a lot of space. Therefore, we recommend cloning this benchmark repository onto a mounted NVMe disk. 
-- The AMD benchmarks are ran in docker containers, which are automatically created and killed when the tests are ran. To make sure that these docker containers don't fill up your storage space, you can change the default location that docker stores its files. Do this by:
+- Some of the AMD benchmarks are ran in docker containers, which are automatically created and killed when the tests are ran. To make sure that these docker containers don't fill up your storage space, change the default location that docker stores its files. Do this by:
 
   `vim /etc/docker/daemon.json`
 
-  make sure `data-root` points to a directory on the mounted NVMe disk, or somewhere with sufficient storage space (we recommend at least 1TB of free space)
+  make sure `data-root` points to a directory on the mounted NVMe disk, or somewhere with sufficient storage space (we recommend at least 500GB of free space)
 
   ```
   {
