@@ -92,7 +92,7 @@ The values (in GB/s) are the bus bandwidth values obtained from the NCCL AllRedu
 
 ## Multichase Benchmark
 
-The values, in nanoseconds (ns) show latency between CPU cores across and within NUMA nodes.
+The values, in nanoseconds (ns) show memory latency across sockets.
 | CPU core | NUMA NODE0  | NUMA NODE1  |
 |------|--------|--------|
 | 0    | 104.2  | 359.6  |
