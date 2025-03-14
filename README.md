@@ -6,6 +6,7 @@ Inefficient workload optimization can significantly increase operational costs f
 - ND A100 v4
 - ND H100 v5
 - ND H200 v5.
+- ND GB200 v6
 
 ### AMD SKUs
 - AMD Instinct MI300
@@ -34,8 +35,11 @@ The [NV Bandwidth](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benc
 ### 6. End-to-end Inference Workloads
 To assess how different system components (as tested by the microbenchmarks) affect overall performance, we suggetsing running some [end-to-end workloads](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/NVIDIA/LLMBenchmark.py). The models we used for benchmarking are the current industry standards across various sizes: LLAMA 3 (8B, 70B, and 405B). The performance of the model inferencing (throughput) is measured in tokens per second, accounting for both processing input tokens and generating output tokens. The workloads run in a TensorRT-LLM environment. Users need huggingface credentials to download all the model weigths. Visit [huggingface.co](https://huggingface.co/) to create an account and obtain access to the models. After obtaining your credentials, use `huggingface-cli login` to input your access token.
 
-### 7. Memory Latency Checker
-The Memory Latency Checker (MLC) measures the bandwidth and latencies between the CPU sockets and main memory DIMMs (Dual In-Line Memory Module) for both read and write in the NUMA domains. Although this has a smaller effect on end-to-end performance, it does affect subservient IO and network operations. To run it: `wget https://downloadmirror.intel.com/834254/mlc_v3.11b.tgz && tar -zxvf mlc_v3.11b.tgz && ./Linux/mlc`
+### 7. CPU STREAM Benchmark 
+The [CPU STREAM](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/NVIDIA/CPUStream.py) benchmark measures memory bandwidth performance rather than raw CPU speed. It evaluates how efficiently a system can move data between the CPU and RAM, which is crucial for memory-intensive applications like scientific computing and HPC.
+
+### 8. Multichase Benchmark 
+The [Multichase](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/NVIDIA/Multichase.py) benchmark is a memory latency benchmark designed to measure pointer-chasing latency in a system. Unlike traditional memory benchmarks like STREAM, which focus on memory bandwidth, Multichase is used to evaluate random memory access latency, which is crucial for workloads that rely on irregular memory access patterns, such as databases and graph processing.
 
 ## Tests Included - AMD
 
@@ -44,7 +48,6 @@ The [hipBLASLt General Matrix-to-matrix Multiply](https://github.com/Azure/AI-be
 
 
 ### 2. Microbenchmark - RCCL Bandwidth
-
 The [RCCL bandwidth test](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/AMD/RCCLBandwidth.py) is a benchmark provided by ROCm RCCL (ROCm Collective Communications Library) library. RCCL is a high-performance library, designed to accelerate interGPU communication, that optimizes communication between multiple GPUs within a single node or across multiple nodes in a multi-GPU system.
 The performance measured is the data transfer bandwidth between GPUs using various communication patterns, such as point-to-point (pairwise) communication or collective communication (communication between multiple GPUs).
 
@@ -60,8 +63,6 @@ The [NV Bandwidth](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benc
 ### 6. End-to-end Inference Workloads
 To assess how different system components (as tested by the microbenchmarks) affect overall performance, we suggetsing running some [end-to-end workloads](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/AMD/LLMBenchmark.py). The models we used for benchmarking are the current industry standards across various sizes: Mistral (7B parameters), LLAMA 3 (8B, 70B, and 405B). The performance of the model inferencing (throughput) is measured in tokens per second, accounting for both processing input tokens and generating output tokens. The workloads run in a vLLM environment. Users need huggingface credentials to download all the model weigths. Visit [huggingface.co](https://huggingface.co/) to create an account and obtain access to the models. After obtaining your credentials, use `huggingface-cli login` to input your access token.
 
-### 7. Memory Latency Checker
-The Memory Latency Checker (MLC) measures the bandwidth and latencies between the CPU sockets and main memory DIMMs (Dual In-Line Memory Module) for both read and write in the NUMA domains. Although this has a smaller effect on end-to-end performance, it does affect subservient IO and network operations. To run it: `wget https://downloadmirror.intel.com/834254/mlc_v3.11b.tgz && tar -zxvf mlc_v3.11b.tgz && ./Linux/mlc`
 
 # HOW TO RUN THE BENCHMARKS
 
@@ -73,6 +74,15 @@ install-dependencies.sh -h
 ```
 
 ### NVIDIA
+
+**ND GB200 v6** still runs an externally managed environment, so the benchmarks need to be ran inside a PyTorch Docker container. Launch the container with the following command before running the benchmarks:
+
+```
+sudo docker run  --rm -it --ipc=host --network=host --privileged --security-opt seccomp=unconfined --cap-add=CAP_SYS_ADMIN --cap-add=SYS_PTRACE --device=/dev/kfd --device=/dev/dri --device=/dev/mem --gpus all -v $PWD:$PWD nvcr.io/nvidia/pytorch:25.01-py3
+```
+
+See the "Storage" section at the bottom of the README for additional docker storage tips.
+
 Usage: `python3 NVIDIA_runner.py [arg]`\
    or: `python3 NVIDIA_runner.py [arg1] [arg2]` ... to run more than one test e.g `python3 NVIDIA_runner.py hbm nccl`\
 Arguments are as follows, and are case insensitive:\
@@ -83,6 +93,8 @@ HBMBandwidth:    `hbm`\
 NV Bandwidth:   `nv`\
 Flash Attention: `fa`\
 FIO Tests:   `fio`\
+CPU Stream: `cpustream`\
+Multichase:  `multichase`\
 LLM Inference Workloads: `llm`
 
 

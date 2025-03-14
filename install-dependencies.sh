@@ -83,9 +83,9 @@ if [[ "$platform" == "AMD" ]]; then
     $pip install $(grep -v tensorrt requirements_main.txt)
 
 elif [[ "$platform" == "NVIDIA" ]]; then
-    $pip install -r requirements_torch_nvidia.txt
-    $pip install $(cat requirements_flashattn.txt) --no-build-isolation
     $pip install -r requirements_main.txt
+    $pip install $(cat requirements_flashattn.txt) --no-build-isolation
+    $pip install -r requirements_torch_nvidia.txt  
 fi
 
 # Warn if fio not installed
