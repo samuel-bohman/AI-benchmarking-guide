@@ -31,6 +31,15 @@ The results shown below are with random initialization (best representation of r
 | 6144        | 12288     | 12288    | 2709.9                 |
 | 802816      | 192       | 768      | 1430.9                  |
 
+### CPU Stream
+| Operation | Bandwidth (TB/s) |
+|-----------|-----------|
+| Copy      | 669.38    |
+| Mul       | 665.34    |
+| Add       | 702.90    |
+| Triad     | 683.97    |
+| Dot       | 525.97    |
+
 
 ### Flash Attention 2.0
 
@@ -50,9 +59,9 @@ The performance (in TFLOPS), in table below, represents the performance for a he
 | Device to Device read |  1530              |
 
 
-## NCCL Bandwidth
+### NCCL Bandwidth
 
-The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth values obtained from the NCCL AllReduce (Ring algorithm) tests in-place operations, varying from 1KB to 8GB of data.
+The values (in GB/s) are the bus bandwidth values obtained from the NCCL AllReduce (Ring algorithm) tests in-place operations, varying from 1KB to 8GB of data.
 
 | Message Size (Bytes) | ND GB200 v6 (GB/s) |
 | -------------------- | ----------------- |
@@ -81,4 +90,10 @@ The values (in GB/s), in the table 6 and figure 5 below, are the bus bandwidth v
 | 4G          | 673.06          |
 | 8G          | 679.61          |
 
+## Multichase Benchmark
 
+The values, in nanoseconds (ns) show latency between CPU cores across and within NUMA nodes.
+| CPU core | NUMA NODE0  | NUMA NODE1  |
+|------|--------|--------|
+| 0    | 104.2  | 359.6  |
+| 64   | 418.7  | 102.0  |
