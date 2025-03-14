@@ -9,8 +9,8 @@
 | CUDA          |   12.8  |
 | NVIDIA Driver | 570.99  |
 | VBIOS         | 97.00.82.00.30 |
-| NCCL          |    2.25.1-1+cuda12.8  |
-| PyTorch       |    2.6.0a0+ecf3bae40a.nv25.01   |
+| NCCL          |    2.25.1 |
+| PyTorch       |    2.6.0   |
 
 
 ## Microbenchmarks
