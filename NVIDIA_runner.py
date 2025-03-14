@@ -1,7 +1,6 @@
 import os
 import sys
 import subprocess
-
 import torch
 
 from Benchmarks.NVIDIA import GEMMCublasLt as gemm
@@ -10,8 +9,11 @@ from Benchmarks.NVIDIA import NVBandwidth as NV
 from Benchmarks.NVIDIA import NCCLBandwidth as NCCL
 from Benchmarks.NVIDIA import FlashAttention as FA
 from Benchmarks.NVIDIA import FIO
-from Infra import tools
+from Benchmarks.NVIDIA import CPUStream as CPU
+from Benchmarks.NVIDIA import Multichase as Multichase
 from Benchmarks.NVIDIA import LLMBenchmark as llmb
+from Infra import tools
+
 
 machine_name = ""
 current = os.getcwd()
@@ -31,21 +33,12 @@ def get_system_specs():
     cuda_version = results.stdout.decode('utf-8').split(",")[1].strip().split(" ")[1]
     file.write("CUDA version     : "+cuda_version+"\n")
 
-    results = subprocess.run("lsb_release -a | grep Release", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    ubuntu = results.stdout.decode('utf-8').strip().split("\t")[1]
-    file.write("ubuntu version   : "+ubuntu+"\n")
+    if output[0].strip() != "NVIDIA Graphics Device" or "GB200" in output[0]:
+        results = subprocess.run("lsb_release -a | grep Release", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        ubuntu = results.stdout.decode('utf-8').strip().split("\t")[1]
+        file.write("ubuntu version   : "+ubuntu+"\n")
+        file.write("pytorch version  : {torch.__version__}\n")
 
-    file.write("pytorch version  : {torch.__version__}\n")
-
-    results = subprocess.run("grep 'stepping\|model\|microcode' /proc/cpuinfo | grep microcode", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    microcode = results.stdout.decode('utf-8').split("\n")[0]
-    file.write(microcode+"\n")
-
-    results = subprocess.run("grep 'stepping\|model\|microcode' /proc/cpuinfo | grep name", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    file.write(results.stdout.decode('utf-8').split("\n")[0]+"\n")
-
-    results = subprocess.run("grep 'cores\|model\|microcode' /proc/cpuinfo | grep cores", shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    file.write(results.stdout.decode('utf-8').split("\n")[0])
     file.close()
     return output[0].strip()
 
@@ -53,13 +46,11 @@ def run_CublasLt():
     test = gemm.GEMMCublastLt("config.json",machine_name) 
     test.build()
     test.run_model_sizes()
-
-    # generates power, clock, and gpu temperature plots
-    # test.run_nvml()
-    # runs GEMM sweep and generates shmoo plots (takes about 20 minutes)
-    # test.run_shmoo()
-    
+   
 def run_HBMBandwidth():
+    if machine_name == "NVIDIA Graphics Device" or "GB200" in machine_name:
+        print("HBM bandwidth Test not supported on this machine")
+        return
     test = HBM.HBMBandwidth("config.json", machine_name)
     test.build()
     test.run()
@@ -77,14 +68,29 @@ def run_NCCLBandwidth():
 def run_FlashAttention():
     test = FA.FlashAttention("config.json", machine_name)
     test.run()
+
+def run_Multichase():
+    test = Multichase.Multichase("config.json", machine_name)
+    test.build()
+    test.run()
+
+def run_CPUStream():
+    test = CPU.CPUStream("config.json", machine_name)
+    test.build()
+    test.run()
     
 def run_FIO():
+    if machine_name == "NVIDIA Graphics Device" or "GB200" in machine_name:
+        print("FIO Test not supported on this machine")
+        return
     test = FIO.FIO("config.json", machine_name)
     test.run()
     
 def run_LLMBenchmark():
+    if machine_name == "NVIDIA Graphics Device" or "GB200" in machine_name:
+        print("LLMBenchmark Test not supported on this machine")
+        return
     test = llmb.LLMBenchmark("config.json", current, machine_name)
-    # test.create_container()
     test.install_requirements()
     test.prepare_datasets()
     test.download_models()
@@ -120,6 +126,16 @@ if ("fa"  in arguments):
     match = True
     run_FlashAttention()
     os.chdir(current)
+
+if ("multichase" in arguments):
+    match = True
+    run_Multichase()
+    os.chdir(current)
+
+if ("cpustream" in arguments):
+    match = True
+    run_CPUStream()
+    os.chdir(current)
     
 if ("fio" in arguments):
     match = True
@@ -137,6 +153,10 @@ if ("all" in arguments):
     os.chdir(current)
     run_NCCLBandwidth()
     os.chdir(current)
+    run_Multichase()
+    os.chdir(current)
+    run_CPUStream()
+    os.chdir(current)
     run_HBMBandwidth()
     os.chdir(current)
     run_NVBandwidth()
@@ -146,5 +166,5 @@ if ("all" in arguments):
     run_FIO()
     run_LLMBenchmark()
 if not match: 
-    print("Usage: python3 NVIDIA_runner.py [arg]\n   or: python3 NVIDIA_runner.py [arg1] [arg2] ... to run more than one test e.g python3 NVIDIA_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nCuBLASLt GEMM:  gemm\nNCCL Bandwidth: nccl\nHBMBandwidth:   hbm\nNV Bandwidth:   nv\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm")
+    print("Usage: python3 NVIDIA_runner.py [arg]\n   or: python3 NVIDIA_runner.py [arg1] [arg2] ... to run more than one test e.g python3 NVIDIA_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nCuBLASLt GEMM:  gemm\nNCCL Bandwidth: nccl\nHBMBandwidth:   hbm\nNV Bandwidth:   nv\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm\nCPU Stream: cpustream\nMultichase:  multichase")
     

@@ -123,6 +123,8 @@ venv.bak/
 #extras
 
 BabelStream/
+CPUStream/
+multichase/
 bin/
 nccl/
 flash-attention/
