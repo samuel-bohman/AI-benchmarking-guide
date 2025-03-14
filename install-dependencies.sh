@@ -83,9 +83,15 @@ if [[ "$platform" == "AMD" ]]; then
     $pip install $(grep -v tensorrt requirements_main.txt)
 
 elif [[ "$platform" == "NVIDIA" ]]; then
-    $pip install -r requirements_main.txt
-    $pip install $(cat requirements_flashattn.txt) --no-build-isolation
-    $pip install -r requirements_torch_nvidia.txt  
+    gpu_output=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader)
+    if echo "$gpu_output" | grep -q "NVIDIA Graphics Device"; then
+        # only install GB200 requirements
+        $pip install prettytable cmake huggingface_hub
+    else
+        $pip install -r requirements_main.txt
+        $pip install $(cat requirements_flashattn.txt) --no-build-isolation
+        $pip install -r requirements_torch_nvidia.txt  
+    fi
 fi
 
 # Warn if fio not installed
