@@ -31,16 +31,6 @@ The results shown below are with random initialization (best representation of r
 | 6144        | 12288     | 12288    | 2709.9                 |
 | 802816      | 192       | 768      | 1430.9                  |
 
-### CPU Stream
-| Operation | Bandwidth (TB/s) |
-|-----------|-----------|
-| Copy      | 669.38    |
-| Mul       | 665.34    |
-| Add       | 702.90    |
-| Triad     | 683.97    |
-| Dot       | 525.97    |
-
-
 ### Flash Attention 2.0
 
 The performance (in TFLOPS), in table below, represents the performance for a head dimension of 128, a batch size of 2, and a sequence length of 8192.
@@ -90,10 +80,3 @@ The values (in GB/s) are the bus bandwidth values obtained from the NCCL AllRedu
 | 4G          | 673.06          |
 | 8G          | 679.61          |
 
-## Multichase Benchmark
-
-The values, in nanoseconds (ns) show memory latency across sockets.
-| CPU core | NUMA NODE0  | NUMA NODE1  |
-|------|--------|--------|
-| 0    | 104.2  | 359.6  |
-| 64   | 418.7  | 102.0  |
