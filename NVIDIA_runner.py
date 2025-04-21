@@ -80,9 +80,6 @@ def run_CPUStream():
     test.run()
     
 def run_FIO():
-    if machine_name == "NVIDIA Graphics Device" or "GB200" in machine_name:
-        print("FIO Test not supported on this machine")
-        return
     test = FIO.FIO("config.json", machine_name)
     test.run()
     
