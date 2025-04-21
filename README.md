@@ -9,7 +9,7 @@ Inefficient workload optimization can significantly increase operational costs f
 - ND GB200 v6
 
 ### AMD SKUs
-- AMD Instinct MI300
+- ND MI300X v5
 
 ## Tests Included - NVIDIA
 
@@ -44,7 +44,7 @@ The [Multichase](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchm
 ## Tests Included - AMD
 
 ### 1. Microbenchmark - hipBLAS GEMM
-The [hipBLASLt General Matrix-to-matrix Multiply](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/AMD/GEMMHipblasLt.py) (GEMM) is a performance evaluation test for the hip Basic Linear Algebra Subroutines (hipBLAS) library for matrix and vector operations that leverages the parallel processing capabilities of GPUs. The benchmark is designed to assess the speed of matrix-to-matrix multiplication, which is the fundamental operation in AI applications, by measuring for varying matrix sizes (m, n, and k). The results shown below are with random initialization (best representation of real-life workloads) and datatype FP16.
+The [hipBLASLt General Matrix-to-matrix Multiply](https://github.com/Azure/AI-benchmarking-guide/blob/main/Benchmarks/AMD/GEMMHipblasLt.py) (GEMM) is a performance evaluation test for the hip Basic Linear Algebra Subroutines (hipBLAS) library for matrix and vector operations that leverages the parallel processing capabilities of GPUs. The benchmark is designed to assess the speed of matrix-to-matrix multiplication, which is the fundamental operation in AI applications, by measuring for varying matrix sizes (m, n, and k). The results shown below are with random initialization (best representation of real-life workloads) and datatype FP8.
 
 
 ### 2. Microbenchmark - RCCL Bandwidth
@@ -75,13 +75,12 @@ install-dependencies.sh -h
 
 ### NVIDIA
 
-**ND GB200 v6** still runs an externally managed environment, so the benchmarks need to be ran inside a PyTorch Docker container. Launch the container with the following command before running the benchmarks:
+**ND GB200 v6** still runs an externally managed environment, so the benchmarks need to be ran inside a python venv. Start a venv with the following commands before running the benchmarks:
 
 ```
-sudo docker run  --rm -it --ipc=host --network=host --privileged --security-opt seccomp=unconfined --cap-add=CAP_SYS_ADMIN --cap-add=SYS_PTRACE --device=/dev/kfd --device=/dev/dri --device=/dev/mem --gpus all -v $PWD:$PWD nvcr.io/nvidia/pytorch:25.01-py3
+python3 -m venv venv
+source venv/bin/activate
 ```
-
-See the "Storage" section at the bottom of the README for additional docker storage tips.
 
 Usage: `python3 NVIDIA_runner.py [arg]`\
    or: `python3 NVIDIA_runner.py [arg1] [arg2]` ... to run more than one test e.g `python3 NVIDIA_runner.py hbm nccl`\
@@ -127,7 +126,7 @@ You can find example of results for the ND A100 v4, ND H100 v5 and ND H200 v5 vi
 
   `vim /etc/docker/daemon.json`
 
-  make sure `data-root` points to a directory on the mounted NVMe disk, or somewhere with sufficient storage space (we recommend at least 500GB of free space)
+  make sure `data-root` points to a directory on the mounted NVMe disk, or somewhere with sufficient storage space (at least 1TB)
 
   ```
   {
