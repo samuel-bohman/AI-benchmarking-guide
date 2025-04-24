@@ -1,11 +1,9 @@
 import json
 import os
 import csv
-import matplotlib.pyplot as plt
 import subprocess
 import csv
 from Infra import tools
-import numpy as np
 from prettytable import PrettyTable
 
 class NCCLBandwidth:
