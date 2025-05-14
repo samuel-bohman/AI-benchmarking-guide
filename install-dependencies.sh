@@ -99,3 +99,6 @@ if ! command -v fio &> /dev/null; then
     printf "\033[1;33m[Warning] fio is not available in current PATH.\033[0m\n"
     printf "\033[1;33m[Warning] It may need to be installed to run the fio benchmark: sudo apt install fio\033[0m\n"
 fi
+
+# Huggingface home directory is PWD
+export HF_HOME=$PWD
