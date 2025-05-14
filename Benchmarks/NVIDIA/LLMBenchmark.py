@@ -58,7 +58,7 @@ class LLMBenchmark:
             max_osl = 0
             max_sum = 0
             max_dataset_path = ""
-            if self.config['models'][model_name]['use_model']:
+            if self.config['models'][model_name]['use_model'] and self.config['models'][model_name]['type'] == "nvidia":
                 for i in range(len(self.config['models'][model_name]['input_sizes'])):
                     isl = self.config['models'][model_name]['input_sizes'][i]
                     osl = self.config['models'][model_name]['output_sizes'][i]
@@ -101,7 +101,7 @@ class LLMBenchmark:
 
     def run_benchmark(self):
         for model_name in self.config['models']:
-            if self.config['models'][model_name]['use_model']:
+            if self.config['models'][model_name]['use_model'] and self.config['models'][model_name]['type'] == "nvidia":
                 print("Benchmarking ", model_name)
                 for i in range(len(self.config['models'][model_name]['input_sizes'])):
                     isl = self.config['models'][model_name]['input_sizes'][i]
