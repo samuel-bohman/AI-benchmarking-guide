@@ -99,7 +99,7 @@ class LLMBenchmark:
                     be2 = subprocess.run(build_engine_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     tools.write_log(tools.check_error(be2))
 
-     def run_benchmark(self):
+    def run_benchmark(self):
         for model_name in self.config['models']:
             if self.config['models'][model_name]['use_model'] and self.config['models'][model_name]['type'] == "nvidia":
                 print("Benchmarking ", model_name)
@@ -123,7 +123,6 @@ class LLMBenchmark:
                     be2 = subprocess.run(run_benchmark_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     self.extract_benchmark_info(results_path)
                     tools.write_log(tools.check_error(be2))
-
 
     def extract_benchmark_info(self, file_path):
         keywords = [
