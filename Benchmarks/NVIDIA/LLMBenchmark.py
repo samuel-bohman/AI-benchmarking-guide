@@ -48,8 +48,8 @@ class LLMBenchmark:
             tools.write_log(tools.check_error(i4))
 
     def download_models(self):
-        for model_name in self.config['models'] and self.config['models'][model_name]['type'] == "nvidia":
-            if self.config['models'][model_name]['use_model']:
+        for model_name in self.config['models']:
+            if self.config['models'][model_name]['use_model'] and self.config['models'][model_name]['type'] == "nvidia":
                 snapshot_download(repo_id=model_name, cache_dir=self.dir_path+"/hub")
 
     def prepare_datasets(self):
