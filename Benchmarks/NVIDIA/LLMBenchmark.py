@@ -29,11 +29,11 @@ class LLMBenchmark:
     def install_requirements(self):
         # Install required packages
         print("Installing Required Packages")
-        i2 = subprocess.run("pip install --extra-index-url https://pypi.nvidia.com/ tensorrt-llm==0.15.0", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        i2 = subprocess.run("pip install --extra-index-url https://pypi.nvidia.com/ tensorrt-llm==0.18.2", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         tools.write_log(tools.check_error(i2))
         i2 = subprocess.run("sudo apt update && sudo apt-get -y install libopenmpi-dev", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         tools.write_log(tools.check_error(i2))
-        i2 = subprocess.run("pip3 install --no-cache-dir --extra-index-url https://pypi.nvidia.com tensorrt-libs==8.6.1", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        i2 = subprocess.run("pip3 install --no-cache-dir --extra-index-url https://pypi.nvidia.com tensorrt-libs", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         tools.write_log(tools.check_error(i2))
 
         os.environ['HF_HOME'] = self.dir_path
@@ -44,7 +44,7 @@ class LLMBenchmark:
         # Clone TensorRT-LLM repo
         if not os.path.exists(os.path.join(self.dir_path, 'TensorRT-LLM')):
             print("Cloning TensorRT-LLM reopsitory from https://github.com/NVIDIA/TensorRT-LLM.git")
-            i4 = subprocess.run("git clone https://github.com/NVIDIA/TensorRT-LLM.git && cd TensorRT-LLM && git checkout v0.15.0", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            i4 = subprocess.run("git clone https://github.com/NVIDIA/TensorRT-LLM.git && cd TensorRT-LLM && git checkout v0.18.2", shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             tools.write_log(tools.check_error(i4))
 
     def download_models(self):
@@ -99,7 +99,7 @@ class LLMBenchmark:
                     be2 = subprocess.run(build_engine_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                     tools.write_log(tools.check_error(be2))
 
-    def run_benchmark(self):
+     def run_benchmark(self):
         for model_name in self.config['models']:
             if self.config['models'][model_name]['use_model'] and self.config['models'][model_name]['type'] == "nvidia":
                 print("Benchmarking ", model_name)
@@ -109,6 +109,7 @@ class LLMBenchmark:
                     tp = self.config['models'][model_name]['tp_size']
                     name = model_name.split('/')[1]
 
+                    print(name + " input/output: " + str(isl) + "/" + str(osl) + " tp size: " + str(tp))
                     dataset_path = self.dir_path + "/datasets/" + name + "_synthetic_" + str(isl) + "_" + str(osl) + ".txt"
                     results_path = self.dir_path + "/Outputs/results_" + name + "_" + str(isl) + "_" + str(osl) + ".txt"
 
@@ -120,4 +121,22 @@ class LLMBenchmark:
                         '''
 
                     be2 = subprocess.run(run_benchmark_command, shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                    self.extract_benchmark_info(results_path)
                     tools.write_log(tools.check_error(be2))
+
+
+    def extract_benchmark_info(self, file_path):
+        keywords = [
+            "Average Input Length (tokens):",
+            "Average Output Length (tokens):",
+            "Token Throughput (tokens/sec):"
+        ]
+
+        with open(file_path, 'r', encoding='utf-8') as file:
+            for line in file:
+                for keyword in keywords:
+                    if keyword in line:
+                        print(line.strip())
+                        break
+
+            print("---------------------------------------------------------------------------------------------")
