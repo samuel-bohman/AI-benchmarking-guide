@@ -49,6 +49,17 @@ The performance (in TFLOPS), in table below, represents the performance for a he
 | Device to Device read |  1530              |
 
 
+### CPU STREAM
+
+|       | ND GB200 v6 (GB/s) |
+| ------| ------------------ |
+| Copy  | 716                |
+| Mul   | 724                |
+| Add   | 817                |
+| Triad | 800                |
+| Dot   | 598                |
+
+
 ### NCCL Bandwidth
 
 The values (in GB/s) are the bus bandwidth values obtained from the NCCL AllReduce (Ring algorithm) tests in-place operations, varying from 1KB to 8GB of data.
