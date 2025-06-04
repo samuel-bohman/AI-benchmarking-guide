@@ -70,7 +70,7 @@ Installation of benchmark dependencies requires multiple steps.
 A convenience script `install-dependencies.sh` is provided to simplify installation.
 
 ```bash
-install-dependencies.sh -h
+install-dependencies.sh 
 ```
 
 ### NVIDIA
@@ -78,8 +78,7 @@ install-dependencies.sh -h
 **ND GB200 v6** still runs an externally managed environment, so the benchmarks need to be ran inside a python venv. Start a venv with the following commands before running the benchmarks:
 
 ```
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv venv && source venv/bin/activate
 ```
 
 Usage: `python3 NVIDIA_runner.py [arg]`\
