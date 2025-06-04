@@ -84,9 +84,6 @@ def run_FIO():
     test.run()
     
 def run_LLMBenchmark():
-    if machine_name == "NVIDIA Graphics Device" or "GB200" in machine_name:
-        print("LLMBenchmark Test not supported on this machine")
-        return
     test = llmb.LLMBenchmark("config.json", current, machine_name)
     test.install_requirements()
     test.prepare_datasets()
