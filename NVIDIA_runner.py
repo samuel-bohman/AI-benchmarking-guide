@@ -15,7 +15,7 @@ from Benchmarks.NVIDIA import LLMBenchmark as llmb
 from Infra import tools
 
 
-machine_name = ""
+host_name = tools.get_hostname()
 current = os.getcwd()
 tools.create_dir("Outputs")
 
@@ -43,54 +43,54 @@ def get_system_specs():
     return output[0].strip()
 
 def run_CublasLt():
-    test = gemm.GEMMCublastLt("config.json",machine_name) 
+    test = gemm.GEMMCublastLt("config.json",host_name) 
     test.build()
     test.run_model_sizes()
    
 def run_HBMBandwidth():
-    if machine_name == "NVIDIA Graphics Device" or "GB200" in machine_name:
-        print("HBM bandwidth Test not supported on this machine")
+    if "GB200" in sku_name:
+        print("HBM bandwidth Test not supported on GB200 yet")
         return
-    test = HBM.HBMBandwidth("config.json", machine_name)
+    test = HBM.HBMBandwidth("config.json", host_name)
     test.build()
     test.run()
 
 def run_NVBandwidth():
-    test = NV.NVBandwidth("config.json", machine_name)
+    test = NV.NVBandwidth("config.json", host_name)
     test.build()
     test.run()
 
 def run_NCCLBandwidth():
-    test = NCCL.NCCLBandwidth("config.json", machine_name)
+    test = NCCL.NCCLBandwidth("config.json", host_name)
     test.build()
     test.run()
 
 def run_FlashAttention():
-    test = FA.FlashAttention("config.json", machine_name)
+    test = FA.FlashAttention("config.json", host_name)
     test.run()
 
 def run_Multichase():
-    test = Multichase.Multichase("config.json", machine_name)
+    test = Multichase.Multichase("config.json", host_name)
     test.build()
     test.run()
 
 def run_CPUStream():
-    test = CPU.CPUStream("config.json", machine_name)
+    test = CPU.CPUStream("config.json", host_name)
     test.build()
     test.run()
     
 def run_FIO():
-    test = FIO.FIO("config.json", machine_name)
+    test = FIO.FIO("config.json", host_name)
     test.run()
     
 def run_LLMBenchmark():
-    test = llmb.LLMBenchmark("config.json", current, machine_name)
+    test = llmb.LLMBenchmark("config.json", current, host_name)
     test.install_requirements()
     test.prepare_datasets()
     test.download_models()
     test.run_benchmark()
 
-machine_name = get_system_specs()
+sku_name = get_system_specs()
 arguments = []
 match = False
 for arg in sys.argv:
