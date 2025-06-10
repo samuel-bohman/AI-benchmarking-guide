@@ -1,5 +1,6 @@
 import os
 import datetime
+import subprocess
 pwd = os.getcwd() + "/Outputs/log.txt"
 
 def create_dir(name: str):
@@ -21,3 +22,9 @@ def check_error(results):
     if results.stderr:
         return results.stderr.decode("utf-8")
     return results.stdout.decode("utf-8")
+
+def get_hostname():
+    results = subprocess.run(["hostname"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if results.stderr:
+        return ""
+    return results.stdout.decode("utf-8").strip()
