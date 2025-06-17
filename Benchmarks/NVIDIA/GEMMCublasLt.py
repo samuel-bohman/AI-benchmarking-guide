@@ -97,7 +97,7 @@ class GEMMCublastLt:
 
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run_model_sizes(self):
-        print("Running CublasLt...")
+        print("Running CublasLt with datatype " + self.datatype + "...")
         current = os.getcwd()
         if self.datatype == "fp8e4m3":
             m_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816, 802816]
