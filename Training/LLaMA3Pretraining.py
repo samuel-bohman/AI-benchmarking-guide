@@ -52,3 +52,9 @@ class LLaMA3Pretraining:
 
         tools.write_log(tools.check_error(results))
         print(f"Output saved to: {output_path}")
+
+        # now use the plotting code to plot the output files (this will plot the file and also print out steady state metrics)
+        plot_script = os.path.join(os.path.dirname(__file__), "LLMA3Plotter.py")
+        output_path = os.path.join(self.outputs_dir, f"LLaMA3Pretraining_{self.machine_name}.txt")
+        subprocess.run(["python", plot_script, "--file", output_path])
+
