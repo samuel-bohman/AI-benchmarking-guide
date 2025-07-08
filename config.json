@@ -144,18 +144,17 @@
     },
     
     "LLaMA3Pretraining": {
-        "log_dir": "/shared/home/haffaticati/mdhekial/llama-model/nemo-logs",
-        "mount_path": "/shared/home/haffaticati/mdhekial/llama-model",
-        "training_script": "run_llama3_8b_pretrain.py",
+        "log_dir": "/",
+        "mount_path": "/",
+        "training_script": "ExecuteLLaMA3Pretrain.py",
         "docker_image": "nvcr.io/nvidia/nemo:25.04",
-        "micro_batch_size": 8,
+        "micro_batch_size": 1,
         "precision": "fp8",
         "parallelism": {
             "tp": 2,
             "pp": 1,
             "vp": null,
-            "cp": 1,
-            "dp": 2
+            "cp": 2
         }
     }
 }

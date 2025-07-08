@@ -14,6 +14,9 @@ from Benchmarks.NVIDIA import Multichase as Multichase
 from Benchmarks.NVIDIA import LLMBenchmark as llmb
 from Infra import tools
 
+# Mishty added for LLaMA pretraining
+from Training.LLaMA3Pretraining import LLaMA3Pretraining
+ 
 
 host_name = tools.get_hostname()
 current = os.getcwd()
@@ -90,6 +93,12 @@ def run_LLMBenchmark():
     test.download_models()
     test.run_benchmark()
 
+# Mishty added for LLaMA pretraining
+def run_LLaMA3Pretrain():
+    test = LLaMA3Pretraining("config.json", host_name)
+    test.build()
+    test.run()
+
 sku_name = get_system_specs()
 arguments = []
 match = False
@@ -139,6 +148,12 @@ if ("fio" in arguments):
 if ("llm" in arguments):
     match = True
     run_LLMBenchmark()
+    os.chdir(current)
+
+# Mishty added for LLaMA pretraining
+if ("llama_pretrain" in arguments):
+    match = True
+    run_LLaMA3Pretrain()
     os.chdir(current)
     
 if ("all" in arguments):

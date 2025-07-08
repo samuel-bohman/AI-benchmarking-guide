@@ -17,7 +17,7 @@ def extract_values(file_path):
                 train_times.append(float(match.group(3)))
     return os.path.basename(file_path), (global_steps, train_losses, train_times)
 
-def analyze_steady_state_different(data, window_size=20, std_threshold=0.01, min_consistent_windows=3):
+def analyze_steady_state_comprehensive(data, window_size=20, std_threshold=0.01, min_consistent_windows=3):
     for file_name, (steps, _, times) in data.items():
         times = np.array(times)
         steps = np.array(steps)
@@ -76,7 +76,7 @@ def main():
     data = {key: data_tuple}
 
     plot_specific_file(data, metric="time") # plot the time metric for the file
-    analyze_steady_state_different(data) # analyze the steady state behavior for the time and print this value out
+    analyze_steady_state_comprehensive(data) # analyze the steady state behavior for the time and print this value out
 
 if __name__ == "__main__":
     main()
