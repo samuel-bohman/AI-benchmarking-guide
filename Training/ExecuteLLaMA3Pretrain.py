@@ -1,3 +1,11 @@
+"""
+Noting down dependencies:
+- numpy
+- matplotlib
+"""
+
+
+
 import json
 import subprocess
 import time

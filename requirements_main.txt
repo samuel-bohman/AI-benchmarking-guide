@@ -8,3 +8,5 @@ packaging==24.1
 transformers==4.48.0
 sympy==1.13.1
 tensorrt==10.8.0.43
+numpy
+matplotlib
