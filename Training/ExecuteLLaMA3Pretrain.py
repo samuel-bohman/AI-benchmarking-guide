@@ -1,11 +1,3 @@
-"""
-Noting down dependencies:
-- numpy
-- matplotlib
-"""
-
-
-
 import json
 import subprocess
 import time
@@ -55,6 +47,9 @@ def configure_recipe(cfg, nodes=1, gpus_per_node=4):
     recipe.trainer.plugins = plugin
     recipe.trainer.accelerator = "gpu"
     recipe.trainer.devices = gpus_per_node
+
+    # just for testing purposes to see if the plot generates properly
+    recipe.trainer.max_steps = 3
 
     return recipe
 

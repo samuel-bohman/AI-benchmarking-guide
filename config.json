@@ -144,9 +144,8 @@
     },
     
     "LLaMA3Pretraining": {
-        "log_dir": "/",
-        "mount_path": "/shared/home/haffaticati/mdhekial/AI-benchmarking-guide",
-        "training_script": "Training/ExecuteLLaMA3Pretrain.py",
+        "mount_path": ".",
+        "training_script": "Benchmarks/NVIDIA/ExecuteLLaMA3Pretrain.py",
         "docker_image": "nvcr.io/nvidia/nemo:25.04",
         "micro_batch_size": 1,
         "precision": "fp8",

@@ -1,6 +1,9 @@
 import os
+import re
 import json
 import subprocess
+import numpy as np
+import matplotlib.pyplot as plt
 from Infra import tools
 from datetime import datetime
 
@@ -8,12 +11,10 @@ class LLaMA3Pretraining:
     def __init__(self, config_path: str, machine_name: str):
         self.name = "LLaMA3Pretraining"
         self.machine_name = machine_name
-        self.config = self.get_config(config_path) # get configuration from config.json
-        # self.log_dir = self.config.get("log_dir", "./logs")
-        self.mount_path = self.config.get("mount_path", ".") # assusming in AI-benchmarking-guide otherwise
+        self.config = self.get_config(config_path) # get config path from JSON
+        self.mount_path = self.config.get("mount_path", ".") # mount docker container
         self.training_script = self.config.get("training_script", "Training/ExecuteLLaMA3Pretrain.py")
         self.container = self.config.get("docker_image", "nvcr.io/nvidia/nemo:25.04")
-        self.outputs_dir = "Outputs" # where all the logging will go in Outputs
 
     def get_config(self, path: str):
         with open(path) as f:
@@ -22,45 +23,86 @@ class LLaMA3Pretraining:
             return data[self.name]
         except KeyError:
             raise KeyError(f"{self.name} section not found in config")
+        
+    def plot_results(self, file_path: str = None):
+        # extract values from the output file
+        global_steps, train_losses, train_times = [], [], [] 
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                match = re.search(r"global_step: (\d+) .* reduced_train_loss: ([\d.]+) .* train_step_timing in s: ([\d.]+)", line)
+                if match:
+                    global_steps.append(int(match.group(1)))
+                    train_losses.append(float(match.group(2)))
+                    train_times.append(float(match.group(3)))
+        
+        # calculate steady state time value
+        window_size = 20
+        std_threshold = 0.01
+        min_consistent_windows = 3
 
-    def build(self):
-        # os.makedirs(self.log_dir, exist_ok=True)
-        os.makedirs(self.outputs_dir, exist_ok=True)
-        tools.write_log(f"Output and log directories ensured.")
+        consistent = 0
+        start_idx = None
+        for i in range(len(train_times) - window_size + 1):
+            std = np.std(train_times[i:i + window_size])
+            if std < std_threshold:
+                consistent += 1
+                if consistent >= min_consistent_windows:
+                    start_idx = i - (min_consistent_windows - 1)
+                    break
+            else:
+                consistent = 0
+
+        if start_idx is not None:
+            steady_times = train_times[start_idx:]
+            steady_steps = global_steps[start_idx:]
+            steady_state = np.mean(steady_times)
+            tools.write_log(f"Steady-state detected: {steady_state:.4f}s over steps {steady_steps[0]}–{steady_steps[-1]}")
+        else:
+            tools.write_log("Could not detect a stable steady state.")
+            steady_state = 0.0
+
+        # create grid for both loss and time plots
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 10))
+        fig.tight_layout(pad=4.0)
+
+        # plot loss
+        ax1.plot(global_steps, train_losses, marker='o', label="Training Loss")
+        ax1.set_xlabel("Global Step")
+        ax1.set_ylabel("Loss")
+        ax1.set_title("Training Loss vs Global Step")
+        ax1.grid(True)
+        ax1.legend()
+
+        # plot time
+        ax2.plot(global_steps, train_times, marker='o', color='orange', label="Training Time (s)")
+        ax2.set_xlabel("Global Step")
+        ax2.set_ylabel("Time (s)")
+        ax2.set_title("Training Time vs Global Step")
+        ax2.grid(True)
+        ax2.legend()
+
+        # add text annotation for the steady state value
+        fig.text(
+            0.5,         # x-position 
+            0.03,        # y-position 
+            f"Steady state value: {steady_state}",
+            ha='center',
+            fontsize=12,
+            style='italic',
+        )
+
+        # save to outputs folder
+        plot_path = f"Outputs/LLaMA3_8B_Pretrain_Results"
+        plt.savefig(plot_path, dpi=300)
+        print(f"Training loss and time plot with steady state saved to {plot_path}")
+        tools.write_log(f"Training loss and time plot with steady state saved to {plot_path}") # print to log.txt
+        plt.close()
+
 
     def run(self):
-        print(f"Launching NeMo container for {self.machine_name}...")
-
-        output_path = os.path.join(self.outputs_dir, f"LLaMA3Pretraining_{self.machine_name}_updated.txt") # log GPU statistics here
-        gpu_logfile = os.path.join(self.outputs_dir, f"LLaMA3Pretraining_GPU_{self.machine_name}_updated.csv") # log the output here
-
-        # compose the command to start GPU logging and training
-        bash_command = (
-            f'echo "[INFO] Starting GPU logging to {gpu_logfile}" && '
-            f'nvidia-smi --query-gpu=timestamp,index,utilization.gpu,clocks.sm,clocks.mem,power.draw,memory.used '
-            f'--format=csv,nounits,noheader -l 10 > "{gpu_logfile}" & '
-            'GPULOG_PID=$! && '
-            f'python {self.training_script}; '
-            'kill $GPULOG_PID'
-        )
-        """
-        command = [
-            "sudo", "docker", "run", "--rm", "-i",
-            "--gpus", "all",
-            "--ipc=host",
-            "--ulimit", "memlock=-1",
-            "--ulimit", "stack=67108864",
-            "-v", f"/shared/home/haffaticati/mdhekial/AI-benchmarking-guide:/workspace/nemo-run",
-            self.container,
-            "bash", "-c", f"cd /workspace/nemo-run && python Training/ExecuteLLaMA3Pretrain.py"
-        ]
-
-        results = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = results.stdout.decode("utf-8")
-
-        with open('Outputs/LLaMA3Pretraining_ccwcus-gpu-9.txt', "w") as file:
-            file.write(output)
-        """
+        log_path = f"Outputs/log.txt" # log to log file
+        tools.write_log(f"Launching NeMo container for {self.machine_name}.") # write to log file
+        print(f"Launching NeMo container for {self.machine_name} and logging at 'Outputs/log.txt'.") # also let the user know where log is
 
         command = [
             "sudo", "docker", "run", "--rm", "-i",
@@ -73,19 +115,10 @@ class LLaMA3Pretraining:
             "bash", "-c", f"cd /workspace/nemo-run && python {self.training_script}"
         ]
 
-        # this will print to console and to the file at the same time
-        with open(output_path, "w") as file:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            for line in process.stdout:
-                print(line, end="")
-                file.write(line)
-            process.wait()
-            tools.write_log(tools.check_error(results))
-            print(f"Output saved to: {output_path}")
-            print(f"GPU log saved to: {gpu_logfile}")
-
-        # now use the plotting code to plot the output files (this will plot the file and also print out steady state metrics)
-        # this would mean pretraining is finished to completion, perhaps add as a separate command to plot output to NVIDIA_runner.py
-        plot_script = os.path.join(os.path.dirname(__file__), "LLaMA3Plotter.py")
-        output_path = os.path.join(self.outputs_dir, f"LLaMA3Pretraining_{self.machine_name}.txt")
-        subprocess.run(["python3", plot_script, "--file", output_path])
+        # launch command and write to log file (this shows all info about epoch, training time, etc.)
+        with open("Outputs/log.txt", "w") as file:
+            subprocess.run(command, stdout=file, stderr=subprocess.STDOUT, text=True)
+        
+        # now plot the results 
+        print(f"Pretraining has finished with output saved to: {log_path}. Now plotting.")
+        self.plot_results(log_path)
