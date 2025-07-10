@@ -56,6 +56,7 @@ def run_RCCLBandwidth():
 def run_FlashAttention():
     test = FA.FlashAttention(current, machine_name)
     test.run()
+    os.chdir(current)
 
 def run_FIO():
     test = FIO.FIO(current, machine_name)
@@ -112,7 +113,6 @@ if ("all" in arguments):
     run_RCCLBandwidth()
     run_FIO()
     run_FlashAttention()
-    os.chdir(current)
     run_LLMBenchmark()
     run_GEMMHipBLAS()
 if not match:
