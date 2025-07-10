@@ -125,10 +125,11 @@ You can find example of results for the ND A100 v4, ND H100 v5 and ND H200 v5 vi
 
   `vim /etc/docker/daemon.json`
 
-  make sure `data-root` points to a directory on the mounted NVMe disk, or somewhere with sufficient storage space (at least 1TB)
+  add a `data-root` field to `daemon.json` and make sure it points to a directory on the mounted NVMe disk, or somewhere with sufficient storage space (at least 1TB). for example:
 
   ```
   {
        "data-root":"/mnt/resource_nvme/docker", 
   }
   ```
+  note that this won't be the path to the NVMe disk on all machines, so check to make sure.
