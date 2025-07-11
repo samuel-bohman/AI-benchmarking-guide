@@ -26,6 +26,9 @@ class FlashAttention:
             'cap_add': ['CAP_SYS_ADMIN', 'SYS_PTRACE'],
             'devices': ['/dev/kfd', '/dev/dri', '/dev/mem'],
             'volumes': {str(self.dir_path): {'bind': str(self.dir_path), 'mode': 'rw'}},
+            'environment': {
+                'FLASH_ATTENTION_TRITON_AMD_ENABLE': 'TRUE'
+            },
             'tty': True,
             'detach': True,
             'auto_remove': True

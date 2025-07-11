@@ -68,17 +68,20 @@ if [[ "$platform" == "AMD" ]]; then
     # the index-url required for ROCm torch libs.  Installing here to maintain same grouping.
     $pip install ninja packaging psutil setuptools wheel
 
-    echo "Building FlashAttention for AMD/ROCm"
-    clone_repo "https://github.com/triton-lang/triton" "triton" "3ca2f498e98ed7249b82722587c511a5610e00c4"
-    pushd triton > /dev/null
-    $pip install -e python
-    popd > /dev/null
+    $pip install triton
+    # echo "Building FlashAttention for AMD/ROCm"
+    # clone_repo "https://github.com/triton-lang/triton" "triton" "3ca2f498e98ed7249b82722587c511a5610e00c4"
+    # pushd triton > /dev/null
+    # $pip install -e python
+    # popd > /dev/null
 
     export FLASH_ATTENTION_TRITON_AMD_ENABLE="TRUE"
-    clone_repo "https://github.com/Dao-AILab/flash-attention.git" "flash-attention"
-    pushd flash-attention > /dev/null
-    python3 setup.py install
-    popd > /dev/null
+
+    $pip install flash-attention
+    # clone_repo "https://github.com/Dao-AILab/flash-attention.git" "flash-attention"
+    # pushd flash-attention > /dev/null
+    # python3 setup.py install
+    # popd > /dev/null
 
     $pip install $(grep -v tensorrt requirements_main.txt)
 
@@ -90,15 +93,26 @@ elif [[ "$platform" == "NVIDIA" ]]; then
     else
         $pip install -r requirements_main.txt
         $pip install $(cat requirements_flashattn.txt) --no-build-isolation
-        $pip install -r requirements_torch_nvidia.txt  
+        $pip install -r requirements_torch_nvidia.txt
     fi
 fi
 
-# Warn if fio not installed
-if ! command -v fio &> /dev/null; then
-    printf "\033[1;33m[Warning] fio is not available in current PATH.\033[0m\n"
-    printf "\033[1;33m[Warning] It may need to be installed to run the fio benchmark: sudo apt install fio\033[0m\n"
+# Install fio based on the system package manager
+if command -v apt &> /dev/null; then
+    sudo apt update && sudo apt install -y fio
+elif command -v yum &> /dev/null; then
+    sudo yum install -y fio
+elif command -v dnf &> /dev/null; then
+    sudo dnf install -y fio
+else
+    printf "\033[1;33m[Warning] Unknown package manager. Please install fio manually.\033[0m\n"
 fi
+
+# Warn if fio not installed
+# if ! command -v fio &> /dev/null; then
+#     printf "\033[1;33m[Warning] fio is not available in current PATH.\033[0m\n"
+#     printf "\033[1;33m[Warning] It may need to be installed to run the fio benchmark: sudo apt install fio\033[0m\n"
+# fi
 
 # Huggingface home directory is PWD
 export HF_HOME=$PWD
