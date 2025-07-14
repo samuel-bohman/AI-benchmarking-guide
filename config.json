@@ -1,5 +1,6 @@
 {
     "GEMMCublasLt": {
+        "type": "nvidia",
         "inputs": {
             "m": {
                 "start": 16,
@@ -20,8 +21,9 @@
             "datatype": "fp8e4m3"
         }
     },
-    
+
     "GEMMHipBLAS": {
+        "type": "amd",
         "inputs": {
             "m": {
                 "start": 16,
@@ -44,6 +46,7 @@
     },
 
     "NCCLBandwidth": {
+        "type": "nvidia",
         "inputs": {
             "start": "8",
             "end": "8G",
@@ -52,6 +55,7 @@
     },
 
     "HBMBandwidth": {
+        "type": "generic",
         "inputs": {
             "interval": 10,
             "num_runs": 5
@@ -59,6 +63,7 @@
     },
 
     "RCCLBandwidth": {
+        "type": "amd",
         "inputs": {
             "start": "8",
             "end": "8G",
@@ -67,6 +72,7 @@
     },
 
     "NVBandwidth": {
+        "type": "nvidia",
         "inputs": {
             "num_runs": 1,
             "interval": 5
@@ -74,6 +80,7 @@
     },
 
     "TransferBench": {
+        "type": "amd",
         "inputs": {
             "num_runs": 1,
             "interval": 5
@@ -113,6 +120,16 @@
 
             "Meta-Llama-3.1-8B-Instruct-FP8-KV":{
                 "use_model": true,
+                "type": "amd",
+                "max_num_seqs": [3000],
+                "input_length":[128],
+                "output_length": [128],
+                "tp_sizes": [8],
+                "num_requests": [500]
+            },
+
+            "Meta-Llama-3.1-8B-Instruct-FP8-KV":{
+                "use_model": false,
                 "type": "amd",
                 "max_num_seqs": [3000],
                 "input_length":[128, 128, 500, 2048, 1024, 128],
