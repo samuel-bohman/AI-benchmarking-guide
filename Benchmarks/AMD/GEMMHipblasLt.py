@@ -70,24 +70,24 @@ class GEMMHipBLAS:
         self.container = client.containers.run('rocm/vllm:latest', **docker_run_options)
         print(f"Created Docker Container ID: {self.container.id}")
 
-    # def build(self):
-    #     path = "hipBLASLt"
-    #     isdir = os.path.isdir(path)
-    #     if not isdir:
-    #         clone_cmd = "git clone https://github.com/ROCm/hipBLASLt " + self.dir_path + "/hipBLASLt"
-    #         results = self.container.exec_run(clone_cmd, stderr=True)
-    #         results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && git checkout a11ccf64efcd818106dbe37768f69dfcc0a7ff22"', stderr=True)
-    #         if results.exit_code != 0:
-    #             tools.write_log(results.output.decode('utf-8'))
-    #             return
+    def build(self):
+        path = "hipBLASLt"
+        isdir = os.path.isdir(path)
+        if not isdir:
+            clone_cmd = "git clone https://github.com/ROCm/hipBLASLt " + self.dir_path + "/hipBLASLt"
+            results = self.container.exec_run(clone_cmd, stderr=True)
+            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && git checkout a11ccf64efcd818106dbe37768f69dfcc0a7ff22"', stderr=True)
+            if results.exit_code != 0:
+                tools.write_log(results.output.decode('utf-8'))
+                return
 
-    #         results = self.container.exec_run(f'sudo apt-get -y update', stderr=True)
-    #         tools.write_log(results.output.decode('utf-8'))
-    #         results = self.container.exec_run(f'sudo apt -y install llvm-dev', stderr=True)
-    #         tools.write_log(results.output.decode('utf-8'))
-    #         print("Building hipBLAS Library...")
-    #         results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && ./install.sh -dc -a gfx942"', stderr=True)
-    #         tools.write_log(results.output.decode('utf-8'))
+            results = self.container.exec_run(f'sudo apt-get -y update', stderr=True)
+            tools.write_log(results.output.decode('utf-8'))
+            results = self.container.exec_run(f'sudo apt -y install llvm-dev', stderr=True)
+            tools.write_log(results.output.decode('utf-8'))
+            print("Building hipBLAS Library...")
+            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && ./install.sh -dc -a gfx942"', stderr=True)
+            tools.write_log(results.output.decode('utf-8'))
 
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run(self):

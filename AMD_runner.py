@@ -45,7 +45,7 @@ def run_GEMMHipBLAS():
     test = GEMM.GEMMHipBLAS("config.json", current, machine_name)
     test.create_container()
     test.build()
-    test.run_model_sizes()
+    test.run()
 
 def run_RCCLBandwidth():
     test = RCCL.RCCLBandwidth("config.json", current, machine_name)
@@ -70,7 +70,7 @@ def run_HBMBandwidth():
 def run_LLMBenchmark():
     test = llmb.LLMBenchmark("config.json", current, machine_name)
     test.create_container()
-    test.run_benchmark()
+    test.run()
 
 machine_name = get_system_specs()
 arguments = []
@@ -117,4 +117,3 @@ if ("all" in arguments):
     run_GEMMHipBLAS()
 if not match:
     print("Usage: python3 AMD_runner.py [arg]\n   or: python3 AMD_runner.py [arg1] [arg2] ... to run more than one test e.g python3 AMD_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nROCBLAS GEMM:  gemm\nRCCL Bandwidth: rccl\nHBMBandwidth:   hbm\nTransferbench:   transfer\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm")
-    
