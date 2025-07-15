@@ -22,16 +22,21 @@ class FlashAttention:
             'name': 'flash_attention',
             'group_add': ['render'],
             'privileged': True,
-            'security_opt': ['seccomp=unconfined'],
+            'security_opt': ['seccomp=unconfined', 'apparmor=unconfined'],
             'cap_add': ['CAP_SYS_ADMIN', 'SYS_PTRACE'],
             'devices': ['/dev/kfd', '/dev/dri', '/dev/mem'],
-            'volumes': {str(self.dir_path): {'bind': str(self.dir_path), 'mode': 'rw'}},
+            'volumes': {
+                str(self.dir_path): {'bind': str(self.dir_path), 'mode': 'rw'},
+                '/mnt/resource_nvme/hf_cache': {'bind': '/root/.cache/huggingface', 'mode': 'rw'}
+            },
             'environment': {
-                'FLASH_ATTENTION_TRITON_AMD_ENABLE': 'TRUE'
+                'FLASH_ATTENTION_TRITON_AMD_ENABLE': 'TRUE',
+                'HF_HOME': '/root/.cache/huggingface'
             },
             'tty': True,
             'detach': True,
-            'auto_remove': True
+            'auto_remove': True,
+            'shm_size': '16G'
         }
 
         # Creates new Docker container
@@ -45,20 +50,19 @@ class FlashAttention:
         current = os.getcwd()
         path ='flash-attention'
         isdir = os.path.isdir(path)
-        # if not isdir:
-        #     results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        #     tools.write_log(tools.check_error(results))
+        if not isdir:
+            results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            tools.write_log(tools.check_error(results))
 
-        # build_path = os.path.join(current, 'flash-attention')
-        # os.chdir(build_path)
+        build_path = os.path.join(current, 'flash-attention')
+        os.chdir(build_path)
 
-        # results = subprocess.run('git checkout 418d677',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # tools.write_log(tools.check_error(results))
-        #results = subprocess.run('GPU_ARCHS="gfx942" python3 setup.py install',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        results = subprocess.run('git checkout 418d677',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        tools.write_log(tools.check_error(results))
+        results = subprocess.run('GPU_ARCHS="gfx942" python3 setup.py install',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         self.create_container()
         print("Running Flash Attention...")
-        #res = self.container.exec_run(f'/bin/sh -c cd {self.dir_path}/flash-attention')
         res = self.container.exec_run(f'python3 {self.dir_path}/flash-attention/benchmarks/benchmark_flash_attention.py | grep -A 2 "batch_size=2, seqlen=8192 ###"')
         tools.write_log(res.output.decode('utf-8'))
         print(res.output.decode('utf-8'))
