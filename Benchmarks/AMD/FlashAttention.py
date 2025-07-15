@@ -30,7 +30,6 @@ class FlashAttention:
                 '/mnt/resource_nvme/hf_cache': {'bind': '/root/.cache/huggingface', 'mode': 'rw'}
             },
             'environment': {
-                'FLASH_ATTENTION_TRITON_AMD_ENABLE': 'TRUE',
                 'HF_HOME': '/root/.cache/huggingface'
             },
             'tty': True,
@@ -47,20 +46,21 @@ class FlashAttention:
         print(f"Created Docker Container ID: {self.container.id}")
 
     def run(self):
-        current = os.getcwd()
-        path ='flash-attention'
-        isdir = os.path.isdir(path)
-        if not isdir:
-            # results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            results = subprocess.run('git clone https://github.com/ROCm/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            tools.write_log(tools.check_error(results))
+        # current = os.getcwd()
+        # path ='flash-attention'
+        # isdir = os.path.isdir(path)
+        # if not isdir:
+        #     # results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #     results = subprocess.run('git clone https://github.com/ROCm/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #     tools.write_log(tools.check_error(results))
 
-        build_path = os.path.join(current, 'flash-attention')
-        os.chdir(build_path)
+        # build_path = os.path.join(current, 'flash-attention')
+        # os.chdir(build_path)
 
         # results = subprocess.run('git checkout 418d677',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # tools.write_log(tools.check_error(results))
-        results = subprocess.run('GPU_ARCHS="gfx942" python3 setup.py install',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # results = subprocess.run('GPU_ARCHS="gfx942" python3 setup.py install',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # MI300 series
+        results = subprocess.run('pip install flash-attn --no-build-isolation', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        tools.write_log(tools.check_error(results))
 
         self.create_container()
         print("Running Flash Attention...")
