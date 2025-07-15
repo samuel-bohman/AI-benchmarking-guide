@@ -51,14 +51,15 @@ class FlashAttention:
         path ='flash-attention'
         isdir = os.path.isdir(path)
         if not isdir:
-            results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            results = subprocess.run('git clone https://github.com/ROCm/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             tools.write_log(tools.check_error(results))
 
         build_path = os.path.join(current, 'flash-attention')
         os.chdir(build_path)
 
-        results = subprocess.run('git checkout 418d677',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        tools.write_log(tools.check_error(results))
+        # results = subprocess.run('git checkout 418d677',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # tools.write_log(tools.check_error(results))
         results = subprocess.run('GPU_ARCHS="gfx942" python3 setup.py install',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         self.create_container()
