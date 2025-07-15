@@ -63,21 +63,21 @@ clone_repo() {
 
 # Install dependencies based on GPU platform
 if [[ "$platform" == "AMD" ]]; then
-    $pip install -r requirements_torch_amd.txt
+    # $pip install -r requirements_torch_amd.txt
     # Cannot install from requirements_torch_amd because these packages are not availabile in
     # the index-url required for ROCm torch libs.  Installing here to maintain same grouping.
-    $pip install ninja packaging psutil setuptools wheel
+    # $pip install ninja packaging psutil setuptools wheel
 
-    $pip install triton
+    # $pip install triton
     # echo "Building FlashAttention for AMD/ROCm"
     # clone_repo "https://github.com/triton-lang/triton" "triton" "3ca2f498e98ed7249b82722587c511a5610e00c4"
     # pushd triton > /dev/null
     # $pip install -e python
     # popd > /dev/null
 
-    export FLASH_ATTENTION_TRITON_AMD_ENABLE="TRUE"
+    # export FLASH_ATTENTION_TRITON_AMD_ENABLE="TRUE"
 
-    $pip install flash-attention
+    # $pip install flash-attention
     # clone_repo "https://github.com/Dao-AILab/flash-attention.git" "flash-attention"
     # pushd flash-attention > /dev/null
     # python3 setup.py install
