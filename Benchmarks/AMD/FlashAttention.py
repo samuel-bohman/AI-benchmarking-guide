@@ -35,23 +35,25 @@ class FlashAttention:
         }
 
         # Creates new Docker container
-        print("Pulling docker container powderluv/vllm_dev_channel:20240927...")
-        self.container = client.containers.run('powderluv/vllm_dev_channel:20240927', **docker_run_options)
+        # print("Pulling docker container powderluv/vllm_dev_channel:20240927...")
+        # self.container = client.containers.run('powderluv/vllm_dev_channel:20240927', **docker_run_options)
+        print("Pulling docker container rocm/vllm:latest...")
+        self.container = client.containers.run('rocm/vllm:latest', **docker_run_options)
         print(f"Created Docker Container ID: {self.container.id}")
 
     def run(self):
         current = os.getcwd()
         path ='flash-attention'
         isdir = os.path.isdir(path)
-        if not isdir:
-            results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            tools.write_log(tools.check_error(results))
+        # if not isdir:
+        #     results = subprocess.run('git clone https://github.com/Dao-AILab/flash-attention.git',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #     tools.write_log(tools.check_error(results))
 
-        build_path = os.path.join(current, 'flash-attention')
-        os.chdir(build_path)
+        # build_path = os.path.join(current, 'flash-attention')
+        # os.chdir(build_path)
 
-        results = subprocess.run('git checkout 418d677',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        tools.write_log(tools.check_error(results))
+        # results = subprocess.run('git checkout 418d677',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # tools.write_log(tools.check_error(results))
         #results = subprocess.run('GPU_ARCHS="gfx942" python3 setup.py install',shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         self.create_container()
