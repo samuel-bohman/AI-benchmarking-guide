@@ -92,7 +92,7 @@ class GEMMHipBLASLt:
 
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run(self):
-        print("Running HipBLAS...")
+        print("Running HipBLASLt...")
         m_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816]
         n_dims = [1024, 2048, 4096, 8192, 16384, 32768, 2145, 12288, 192]
         k_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 12288, 768]
