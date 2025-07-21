@@ -98,7 +98,7 @@ class GEMMHipBLASLt:
         k_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 12288, 768]
 
         for i in range(len(m_dims)):
-            hipblas_cmd = 'cd ' + self.dir_path + '/Benchmarks/AMD && ./hipBLAS_runner.sh ' + str(m_dims[i]) + ' ' +  str(n_dims[i]) + ' ' + str(k_dims[i])
+            hipblas_cmd = 'cd ' + self.dir_path + '/Benchmarks/AMD && ./hipBLASLt_runner.sh ' + str(m_dims[i]) + ' ' +  str(n_dims[i]) + ' ' + str(k_dims[i])
             results = self.container.exec_run(f'/bin/sh -c ' + '"' + hipblas_cmd + '"')
             tools.write_log(results.output.decode('utf-8'))
 
