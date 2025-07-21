@@ -3,6 +3,7 @@ import os
 from Infra import tools
 from prettytable import PrettyTable
 import docker
+import datetime
 
 class GEMMHipBLAS:
     def __init__(self, path: str, dir_path: str, machine: str, i: int = 1000, w: int = 10000):
@@ -85,7 +86,7 @@ class GEMMHipBLAS:
             tools.write_log(results.output.decode('utf-8'))
             results = self.container.exec_run(f'sudo apt -y install llvm-dev', stderr=True)
             tools.write_log(results.output.decode('utf-8'))
-            print("Building hipBLAS Library...")
+            print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Building hipBLASLt Library...")
             results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && ./install.sh -dc -a gfx942"', stderr=True)
             tools.write_log(results.output.decode('utf-8'))
 
@@ -101,7 +102,7 @@ class GEMMHipBLAS:
             results = self.container.exec_run(f'/bin/sh -c ' + '"' + hipblas_cmd + '"')
             tools.write_log(results.output.decode('utf-8'))
 
-        with open(self.dir_path + '/Outputs/GEMMHipBLAS_results.txt', 'r') as resFile:
+        with open(self.dir_path + '/Outputs/GEMMHipBLASLt_results.txt', 'r') as resFile:
             table1 = PrettyTable()
             table1.field_names = ["M","N","K","TFLOPS"]
             for line in resFile:
