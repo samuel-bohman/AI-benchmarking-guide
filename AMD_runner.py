@@ -41,8 +41,8 @@ def run_TransferBench():
     test.build()
     test.run()
 
-def run_GEMMHipBLAS():
-    test = GEMM.GEMMHipBLAS("config.json", current, machine_name)
+def run_GEMMHipBLASLt():
+    test = GEMM.GEMMHipBLASLt("config.json", current, machine_name)
     test.create_container()
     test.build()
     test.run()
@@ -80,7 +80,7 @@ for arg in sys.argv:
 
 if ("gemm" in arguments):
     match = True
-    run_GEMMHipBLAS()
+    run_GEMMHipBLASLt()
 
 if ("rccl" in arguments):
     match = True
@@ -114,6 +114,6 @@ if ("all" in arguments):
     run_FIO()
     run_FlashAttention()
     run_LLMBenchmark()
-    run_GEMMHipBLAS()
+    run_GEMMHipBLASLt()
 if not match:
     print("Usage: python3 AMD_runner.py [arg]\n   or: python3 AMD_runner.py [arg1] [arg2] ... to run more than one test e.g python3 AMD_runner.py hbm nccl\nArguments are as follows, and are case insensitive:\nAll tests:  all\nROCBLAS GEMM:  gemm\nRCCL Bandwidth: rccl\nHBMBandwidth:   hbm\nTransferbench:   transfer\nFlash Attention: fa\nFIO Tests:   fio\nLLM Inference Workloads: llm")

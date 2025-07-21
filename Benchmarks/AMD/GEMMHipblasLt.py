@@ -5,9 +5,9 @@ from prettytable import PrettyTable
 import docker
 import datetime
 
-class GEMMHipBLAS:
+class GEMMHipBLASLt:
     def __init__(self, path: str, dir_path: str, machine: str, i: int = 1000, w: int = 10000):
-        self.name = "GEMMHipBLAS"
+        self.name = "GEMMHipBLASLt"
         config = self.get_config(path)
         self.m, self.n, self.k, self.duration, self.datatype = self.config_conversion(config)
         self.dir_path = dir_path

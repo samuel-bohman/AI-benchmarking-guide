@@ -22,7 +22,7 @@
         }
     },
 
-    "GEMMHipBLAS": {
+    "GEMMHipBLASLt": {
         "type": "amd",
         "inputs": {
             "m": {
