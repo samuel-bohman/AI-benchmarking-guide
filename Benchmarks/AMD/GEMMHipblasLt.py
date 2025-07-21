@@ -72,37 +72,30 @@ class GEMMHipBLASLt:
         print(f"Created Docker Container ID: {self.container.id}")
 
     def build(self):
-        path = "hipBLASLt"
-        isdir = os.path.isdir(path)
-        if not isdir:
-            clone_cmd = "git clone https://github.com/ROCm/hipBLASLt " + self.dir_path + "/hipBLASLt"
-            results = self.container.exec_run(clone_cmd, stderr=True)
-            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && git checkout a11ccf64efcd818106dbe37768f69dfcc0a7ff22"', stderr=True)
-            if results.exit_code != 0:
-                tools.write_log(results.output.decode('utf-8'))
-                return
-
-            results = self.container.exec_run(f'sudo apt-get -y update', stderr=True)
+        print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Installing hipBLASLt package...")
+        results = self.container.exec_run(f'/bin/sh -c "apt-get update && apt-get install -y hipblaslt"', stderr=True)
+        if results.exit_code != 0:
             tools.write_log(results.output.decode('utf-8'))
-            results = self.container.exec_run(f'sudo apt -y install llvm-dev', stderr=True)
-            tools.write_log(results.output.decode('utf-8'))
-            print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Building hipBLASLt Library...")
-            results = self.container.exec_run(f'/bin/sh -c "cd {self.dir_path}/hipBLASLt && ./install.sh -dc -a gfx942"', stderr=True)
-            tools.write_log(results.output.decode('utf-8'))
+            return
 
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run(self):
         print("Running HipBLASLt...")
-        m_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816]
-        n_dims = [1024, 2048, 4096, 8192, 16384, 32768, 2145, 12288, 192]
-        k_dims = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 12288, 768]
+        # self.m = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816]
+        # self.n = [1024, 2048, 4096, 8192, 16384, 32768, 2145, 12288, 192]
+        # self.k = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 12288, 768]
 
-        for i in range(len(m_dims)):
-            hipblas_cmd = 'cd ' + self.dir_path + '/Benchmarks/AMD && ./hipBLASLt_runner.sh ' + str(m_dims[i]) + ' ' +  str(n_dims[i]) + ' ' + str(k_dims[i])
-            results = self.container.exec_run(f'/bin/sh -c ' + '"' + hipblas_cmd + '"')
+        results_file_path = self.dir_path + '/Outputs/GEMMHipBLASLt_results.txt'
+        # Clear the results file before the run to avoid accumulating old results
+        with open(results_file_path, 'w') as f:
+            pass
+
+        for i in range(len(self.m)):
+            hipblas_cmd = f"cd {self.dir_path}/Benchmarks/AMD && ./hipBLASLt_runner.sh {self.m[i]} {self.n[i]} {self.k[i]}"
+            results = self.container.exec_run(f'/bin/sh -c "{hipblas_cmd}"')
             tools.write_log(results.output.decode('utf-8'))
 
-        with open(self.dir_path + '/Outputs/GEMMHipBLASLt_results.txt', 'r') as resFile:
+        with open(results_file_path, 'r') as resFile:
             table1 = PrettyTable()
             table1.field_names = ["M","N","K","TFLOPS"]
             for line in resFile:
