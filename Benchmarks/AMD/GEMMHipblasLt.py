@@ -65,8 +65,6 @@ class GEMMHipBLASLt:
         }
 
         # Creates new Docker container
-        # print("Pulling docker container rocm/vllm-dev:main...")
-        # self.container = client.containers.run('rocm/vllm-dev:main', **docker_run_options)
         print("Pulling docker container rocm/vllm:latest...")
         self.container = client.containers.run('rocm/vllm:latest', **docker_run_options)
         print(f"Created Docker Container ID: {self.container.id}")
@@ -81,32 +79,35 @@ class GEMMHipBLASLt:
     # run GEMM with predetermined matrix sizes that are commonly used in transformers
     def run(self):
         print("Running HipBLASLt...")
-        # self.m = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 6144, 802816]
-        # self.n = [1024, 2048, 4096, 8192, 16384, 32768, 2145, 12288, 192]
-        # self.k = [1024, 2048, 4096, 8192, 16384, 32768, 1024, 12288, 768]
 
-        results_file_path = self.dir_path + '/Outputs/GEMMHipBLASLt_results.txt'
-        # Clear the results file before the run to avoid accumulating old results
-        with open(results_file_path, 'w') as f:
-            pass
+        table1 = PrettyTable()
+        table1.field_names = ["M", "N", "K", "TFLOPS"]
+        total_tests = len(self.m)
 
-        for i in range(len(self.m)):
-            hipblas_cmd = f"cd {self.dir_path}/Benchmarks/AMD && ./hipBLASLt_runner.sh {self.m[i]} {self.n[i]} {self.k[i]}"
+        for i in range(total_tests):
+            m_val, n_val, k_val = self.m[i], self.n[i], self.k[i]
+
+            print(f"Running test {i+1}/{total_tests}: M={m_val}, N={n_val}, K={k_val}...")
+
+            hipblas_cmd = f"cd {self.dir_path}/Benchmarks/AMD && ./hipBLASLt_runner.sh {m_val} {n_val} {k_val}"
             results = self.container.exec_run(f'/bin/sh -c "{hipblas_cmd}"')
-            tools.write_log(results.output.decode('utf-8'))
 
-        with open(results_file_path, 'r') as resFile:
-            table1 = PrettyTable()
-            table1.field_names = ["M","N","K","TFLOPS"]
-            for line in resFile:
-                l = line.strip()
-                if l[0] == "T":
-                    l = l.split(',')
-                    m = l[4]
-                    n = l[5]
-                    k = l[6]
-                    tflops = float(l[-3])/1000
-                    table1.add_row([m,n,k,tflops])
+            output = results.output.decode('utf-8').strip()
+            tools.write_log(output)
 
+            if results.exit_code == 0 and output:
+                try:
+                    # Parse the output line directly
+                    line_parts = output.split(',')
+                    tflops = float(line_parts[-2]) / 1000
+                    table1.add_row([m_val, n_val, k_val, f"{tflops:.2f}"])
+                    print(f"Result: {tflops:.2f} TFLOPS")
+                except (IndexError, ValueError) as e:
+                    table1.add_row([m_val, n_val, k_val, "Parse Error"])
+                    print(f"Could not parse result for M={m_val}, N={n_val}, K={k_val}. Error: {e}")
+            else:
+                print(f"Test failed for M={m_val}, N={n_val}, K={k_val}. See logs for details.")
+
+        print("\n--- Benchmark Summary ---")
         print(table1)
         self.container.kill()
