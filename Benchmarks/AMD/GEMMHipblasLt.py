@@ -80,6 +80,11 @@ class GEMMHipBLASLt:
     def run(self):
         print("Running HipBLASLt...")
 
+        results_file_path = os.path.join(self.dir_path, 'Outputs', 'GEMMHipBLASLt_results.csv')
+        os.makedirs(os.path.dirname(results_file_path), exist_ok=True)
+        with open(results_file_path, 'w') as f:
+            f.write("M,N,K,TFLOPS\n")
+
         table1 = PrettyTable()
         table1.field_names = ["M", "N", "K", "TFLOPS"]
         total_tests = len(self.m)
@@ -93,19 +98,22 @@ class GEMMHipBLASLt:
             results = self.container.exec_run(f'/bin/sh -c "{hipblas_cmd}"')
 
             output = results.output.decode('utf-8').strip()
-            tools.write_log(output)
+            tools.write_log(output)  # raw log for debugging
 
             if results.exit_code == 0 and output:
                 try:
-                    # Parse the output line directly
                     line_parts = output.split(',')
-                    tflops = float(line_parts[-2]) / 1000
+                    tflops = float(line_parts[-3]) / 1000
                     table1.add_row([m_val, n_val, k_val, f"{tflops:.2f}"])
                     print(f"Result: {tflops:.2f} TFLOPS")
+                    with open(results_file_path, 'a') as f:
+                        f.write(f"{m_val},{n_val},{k_val},{tflops:.2f}\n")
                 except (IndexError, ValueError) as e:
                     table1.add_row([m_val, n_val, k_val, "Parse Error"])
                     print(f"Could not parse result for M={m_val}, N={n_val}, K={k_val}. Error: {e}")
+
             else:
+                table1.add_row([m_val, n_val, k_val, "Test Failed"])
                 print(f"Test failed for M={m_val}, N={n_val}, K={k_val}. See logs for details.")
 
         print("\n--- Benchmark Summary ---")
